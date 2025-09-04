@@ -61,49 +61,43 @@ const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
 
     const rect = e.target.getBoundingClientRect()
     const [domX, domY] = getDOMxy(e)
+    const startDomY = Math.min(domStart[1], domY)
 
     // get top left point
     // pdf y coordinates start from btm. pdfy = pdfHeight - YRelativeToPDF
-    const pdfX = Math.min(domStart[0], domX)
-    const startDomY = Math.min(domStart[1], domY)
-    const pdfY = rect.height - startDomY
+    const coord = {
+      pdfX: Math.min(domStart[0], domX),
+      pdfY: rect.height - startDomY,
+      domY: startDomY,
+      width: Math.abs(domStart[0] - domX),
+      height: Math.abs(domStart[1] - domY),
+      words: [],
+    }
 
     // w and h = diff between 2 clicked points
-    const width = Math.abs(domStart[0] - domX)
-    const height = Math.abs(domStart[1] - domY)
-    const btmx = pdfX + width
-    const btmy = pdfY - height
+    const btmx = coord.pdfX + coord.width
+    const btmy = coord.pdfY - coord.height
 
     // console.log(
-    //   `mouse up: clientX = ${e.clientX}, clientY = ${e.clientY}, pdfX = ${pdfX}, pdfY = ${pdfY}, btmx = ${btmx}, btmy = ${btmy}, width = ${width}, height = ${height}`,
+    //   `mouse up: clientX = ${e.clientX}, clientY = ${e.clientY}, coords = ${coord}`,
     // )
 
     //  find words inside coordinates
-    const words = []
     for (let i = 0; i < page.length; i++) {
       let wx = page[i].transform[4]
       let wy = page[i].transform[5]
 
-      if (wx >= pdfX && wx <= btmx && wy <= pdfY && wy >= btmy) {
-        words.push(page[i].str)
+      if (wx >= coord.pdfX && wx <= btmx && wy <= coord.pdfY && wy >= btmy) {
+        coord.words.push(page[i].str)
       }
     }
 
-    setsavedCoords({
-      ...savedCoords,
-      [pageNumber]: [
-        ...savedCoords[pageNumber],
-        {
-          id: `${pdfX},${pdfY},${width},${height}`,
-          pdfX,
-          pdfY,
-          domY: startDomY,
-          width,
-          height,
-          words,
-        },
-      ],
-    })
+    coord.id = `${coord.pdfX},${coord.pdfY},${coord.width},${coord.height}`
+
+    setsavedCoords((prev) => ({
+      ...prev,
+      [pageNumber]: [...prev[pageNumber], coord],
+    }))
   }
 
   const onPageLoadSuccess = async (pageElement) => {
