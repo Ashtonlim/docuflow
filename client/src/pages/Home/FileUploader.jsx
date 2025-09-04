@@ -1,14 +1,9 @@
-import { useId } from 'react'
-
 const FileUploader = ({ onFileChange }) => {
-  const fileId = useId()
-
   return (
-    <div className='Example__container__load'>
-      <label htmlFor={fileId}>Load from file:</label>{' '}
+    <div>
       <input
-        id={fileId}
         onChange={onFileChange}
+        className='file-input'
         type='file'
         accept='application/pdf'
       />

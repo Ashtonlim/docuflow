@@ -2,10 +2,8 @@ import { useMemo, useState } from 'react'
 import { Page } from 'react-pdf'
 import SelectionBox from './SelectionBox'
 
-import './Sample.css'
-
 const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
-  const [page, setpage] = useState(null)
+  const [page, setpage] = useState([])
   const [domStart, setdomStart] = useState([-1, -1])
   const [domEnd, setdomEnd] = useState([-1, -1])
   const [isSelecting, setIsSelecting] = useState(false)
@@ -33,33 +31,43 @@ const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
   )
 
   const getDOMxy = (e) => {
-    const rect = e.target.getBoundingClientRect()
+    // use currentTarget: is the element that the event listener is attached to.
+    // instead of target bc: is the element that triggered the event (e.g., the user clicked on)
+
+    const rect = e.currentTarget.getBoundingClientRect()
     const domX = e.clientX - rect.left
     const domY = e.clientY - rect.top
     return [domX, domY]
   }
 
   const handleMouseDown = (e) => {
-    const xy = getDOMxy(e)
-    setdomEnd(xy)
-    setdomStart(xy)
-    setIsSelecting(true)
+    if (e.target === e.currentTarget) {
+      const xy = getDOMxy(e)
+      setdomEnd(xy)
+      setdomStart(xy)
+      setIsSelecting(true)
+    }
   }
 
   const handleMouseMove = (e) => {
     if (isSelecting) {
       setdomEnd(getDOMxy(e))
+      return
     }
   }
 
   const handleMouseUp = (e) => {
-    setIsSelecting(false)
-    if (!(pageNumber in savedCoords)) {
-      alert('saved coordinates did not initialise correctly')
+    if (isSelecting === false) {
       return
     }
 
-    const rect = e.target.getBoundingClientRect()
+    setIsSelecting(false)
+    if (!(pageNumber in savedCoords)) {
+      console.error('saved coordinates did not initialise correctly.')
+      return
+    }
+
+    const rect = e.currentTarget.getBoundingClientRect()
     const [domX, domY] = getDOMxy(e)
     const startDomY = Math.min(domStart[1], domY)
 
@@ -115,6 +123,7 @@ const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
     >
       <Page pageNumber={pageNumber} onLoadSuccess={onPageLoadSuccess} />
       <div
+        className='overlay'
         style={{
           position: 'absolute',
           zIndex: 10,
@@ -129,6 +138,7 @@ const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
         onMouseUp={handleMouseUp}
       >
         {renderedCoords}
+
         {isSelecting && (
           <SelectionBox
             coords={{
