@@ -10,7 +10,7 @@ const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
   const [domEnd, setdomEnd] = useState([-1, -1])
   const [isSelecting, setIsSelecting] = useState(false)
 
-  // console.log(`page ${pageNumber} is running`)
+  console.log(`page ${pageNumber} is running`)
 
   const handleDelete = (id) => {
     setsavedCoords((prev) => ({
@@ -43,10 +43,12 @@ const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
   }
 
   const handleMouseDown = (e) => {
-    const xy = getDOMxy(e)
-    setdomEnd(xy)
-    setdomStart(xy)
-    setIsSelecting(true)
+    if (e.target === e.currentTarget) {
+      const xy = getDOMxy(e)
+      setdomEnd(xy)
+      setdomStart(xy)
+      setIsSelecting(true)
+    }
   }
 
   const handleMouseMove = (e) => {
@@ -57,13 +59,14 @@ const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
   }
 
   const handleMouseUp = (e) => {
+    if (!isSelecting) return
     setIsSelecting(false)
     if (!(pageNumber in savedCoords)) {
       console.error('saved coordinates did not initialise correctly.')
       return
     }
 
-    const rect = e.target.getBoundingClientRect()
+    const rect = e.currentTarget.getBoundingClientRect()
     const [domX, domY] = getDOMxy(e)
     const startDomY = Math.min(domStart[1], domY)
 
@@ -128,7 +131,6 @@ const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
           width: '100%',
           height: '100%',
           cursor: 'crosshair',
-          pointerEvents: 'auto',
         }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
