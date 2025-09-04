@@ -1,8 +1,16 @@
 import { useState } from 'react'
 import { Page } from 'react-pdf'
+import SelectionBox from './SelectionBox'
+
 import './Sample.css'
 
-const PDFPage = ({ pageNumber, pageText, setPageText }) => {
+const PDFPage = ({
+  pageNumber,
+  pageText,
+  setPageText,
+  savedCoords,
+  setsavedCoords,
+}) => {
   const [page, setpage] = useState(null)
   const [domStart, setdomStart] = useState([-1, -1])
   const [domEnd, setdomEnd] = useState([-1, -1])
@@ -30,10 +38,12 @@ const PDFPage = ({ pageNumber, pageText, setPageText }) => {
   }
 
   const handleMouseUp = (e) => {
-    // if (!(pgNumber in pageText)) {
-    //   alert('page was not loaded into pageText')
-    //   return
-    // }
+    console.log('savedCoords = ', savedCoords, pageNumber)
+    setIsSelecting(false)
+    if (!(pageNumber in savedCoords)) {
+      alert('saved coordinates did not initialise correctly')
+      return
+    }
 
     const rect = e.target.getBoundingClientRect()
     const [domX, domY] = getDOMxy(e)
@@ -64,25 +74,30 @@ const PDFPage = ({ pageNumber, pageText, setPageText }) => {
       }
     }
 
-    // console.log(words)
-    setIsSelecting(false)
-    setsavedCoords([
+    console.log(words)
+    // setIsSelecting(false)
+    setsavedCoords({
       ...savedCoords,
-      {
-        id: `${topx}${topy}${width}${height}`,
-        topx,
-        topy,
-        width,
-        height,
-        words,
-      },
-    ])
+      [pageNumber]: [
+        ...savedCoords[pageNumber],
+        {
+          id: `${topx}${topy}${width}${height}`,
+          topx,
+          topy,
+          width,
+          height,
+          words,
+        },
+      ],
+    })
 
-    console.log(savedCoords)
+    // console.log(savedCoords)
   }
 
-  const onPageLoadSuccess = async (page) => {
-    const pagetext = (await page.getTextContent()).items
+  const onPageLoadSuccess = async (pageElement) => {
+    console.log('pg no', pageNumber)
+    const pagetext = (await pageElement.getTextContent()).items
+    setsavedCoords((prev) => ({ ...prev, [pageNumber]: [] }))
     setpage(pagetext)
   }
 
@@ -95,7 +110,6 @@ const PDFPage = ({ pageNumber, pageText, setPageText }) => {
       }}
     >
       <Page pageNumber={pageNumber} onLoadSuccess={onPageLoadSuccess} />
-      {/* Transparent overlay for consistent mouse events */}
       <div
         style={{
           position: 'absolute',
@@ -110,18 +124,18 @@ const PDFPage = ({ pageNumber, pageText, setPageText }) => {
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
       >
-        {/* {savedCoords.map((coords) => (
+        {savedCoords[pageNumber]?.map((coords) => (
           <SelectionBox key={coords.id} coords={coords} />
-        ))} */}
+        ))}
         {isSelecting && (
-          // <SelectionBox
-          //   coords={{
-          //     topx: Math.min(domStart[0], domEnd[0]),
-          //     topY: Math.min(domStart[1], domEnd[1]),
-          //     width: Math.abs(domStart[0] - domEnd[0]),
-          //     height: Math.abs(domStart[1] - domEnd[1]),
-          //   }}
-          // />
+          //   <SelectionBox
+          //     coords={{
+          //       topx: Math.min(domStart[0], domEnd[0]),
+          //       topY: Math.min(domStart[1], domEnd[1]),
+          //       width: Math.abs(domStart[0] - domEnd[0]),
+          //       height: Math.abs(domStart[1] - domEnd[1]),
+          //     }}
+          //   />
 
           <div
             style={{

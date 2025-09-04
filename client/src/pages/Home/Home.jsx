@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { pdfjs, Document } from 'react-pdf'
+import { pdfjs, Document, Page } from 'react-pdf'
 import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
 
@@ -22,7 +22,7 @@ export default function Home() {
   const [file, setFile] = useState(null)
   const [numPages, setNumPages] = useState()
   const [pageText, setPageText] = useState({})
-  const [savedCoords, setsavedCoords] = useState([])
+  const [savedCoords, setsavedCoords] = useState({})
 
   const onFileChange = (event) => {
     const nextFile = event.target?.files?.[0]
@@ -50,11 +50,15 @@ export default function Home() {
               options={options}
             >
               {Array.from(new Array(numPages), (_el, index) => (
+                // <Page pageNumber={index + 1} />
+                // <PDFPage pageNumber={index + 1} />
                 <PDFPage
                   key={`page_${index + 1}`}
-                  pgNumber={index + 1}
+                  pageNumber={index + 1}
                   pageText={pageText}
                   setPageText={setPageText}
+                  savedCoords={savedCoords}
+                  setsavedCoords={setsavedCoords}
                 />
               ))}
             </Document>
