@@ -1,8 +1,8 @@
 import React from 'react'
 
-import Home from '@/pages/Home.jsx'
-import About from '@/pages/About.jsx'
-import Resources from '@/pages/Resources.jsx'
+import Home from '@/pages/Home/Home.jsx'
+import About from '@/pages/About/About.jsx'
+import Resources from '@/pages/Resources/Resources.jsx'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router'
 
 import config from '@/config.js'
