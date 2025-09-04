@@ -49,3 +49,7 @@
   padding: 20px;
   color: white;
 }
+
+.overlay > * {
+  pointer-events: none; /* prevents overlay from intercepting children events */
+}

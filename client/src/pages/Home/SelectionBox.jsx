@@ -12,6 +12,7 @@ const SelectionBox = ({ coords, handleDelete }) => {
         width: coords.width,
         height: coords.height,
         zIndex: 20,
+        pointerEvents: 'auto',
       }}
     >
       <button
@@ -34,6 +35,8 @@ const SelectionBox = ({ coords, handleDelete }) => {
       >
         <span className='text-black'>✕</span>
       </button>
+      {/* {handleDelete && (
+      )} */}
     </div>
   )
 }

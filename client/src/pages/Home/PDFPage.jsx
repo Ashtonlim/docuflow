@@ -5,12 +5,12 @@ import SelectionBox from './SelectionBox'
 import './Sample.css'
 
 const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
-  const [page, setpage] = useState(null)
+  const [page, setpage] = useState([])
   const [domStart, setdomStart] = useState([-1, -1])
   const [domEnd, setdomEnd] = useState([-1, -1])
   const [isSelecting, setIsSelecting] = useState(false)
 
-  console.log(`page ${pageNumber} is running`)
+  // console.log(`page ${pageNumber} is running`)
 
   const handleDelete = (id) => {
     setsavedCoords((prev) => ({
@@ -33,7 +33,10 @@ const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
   )
 
   const getDOMxy = (e) => {
-    const rect = e.target.getBoundingClientRect()
+    // use currentTarget: is the element that the event listener is attached to.
+    // instead of target bc: is the element that triggered the event (e.g., the user clicked on)
+
+    const rect = e.currentTarget.getBoundingClientRect()
     const domX = e.clientX - rect.left
     const domY = e.clientY - rect.top
     return [domX, domY]
@@ -49,13 +52,14 @@ const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
   const handleMouseMove = (e) => {
     if (isSelecting) {
       setdomEnd(getDOMxy(e))
+      return
     }
   }
 
   const handleMouseUp = (e) => {
     setIsSelecting(false)
     if (!(pageNumber in savedCoords)) {
-      alert('saved coordinates did not initialise correctly')
+      console.error('saved coordinates did not initialise correctly.')
       return
     }
 
@@ -115,6 +119,7 @@ const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
     >
       <Page pageNumber={pageNumber} onLoadSuccess={onPageLoadSuccess} />
       <div
+        className='overlay'
         style={{
           position: 'absolute',
           zIndex: 10,
@@ -123,12 +128,14 @@ const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
           width: '100%',
           height: '100%',
           cursor: 'crosshair',
+          pointerEvents: 'auto',
         }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
       >
         {renderedCoords}
+
         {isSelecting && (
           <SelectionBox
             coords={{
