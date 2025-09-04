@@ -1,5 +1,8 @@
-const SelectionBox = ({ coords, handleDelete }) => {
+import { useDispatch } from 'react-redux'
+import { delCoordFromPage } from '@/features/pdf/pdfSlice'
+const SelectionBox = ({ coords, canDelete = true }) => {
   // console.log('add', coords)
+  const dispatch = useDispatch()
   return (
     <div
       style={{
@@ -16,11 +19,11 @@ const SelectionBox = ({ coords, handleDelete }) => {
         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
       }}
     >
-      {handleDelete && (
+      {canDelete && (
         <button
           onClick={(e) => {
             e.stopPropagation()
-            handleDelete(coords.id)
+            dispatch(delCoordFromPage(coords))
           }}
           style={{
             position: 'absolute',
@@ -38,8 +41,6 @@ const SelectionBox = ({ coords, handleDelete }) => {
           <span className='text-black'>✕</span>
         </button>
       )}
-      {/* {handleDelete && (
-      )} */}
     </div>
   )
 }
