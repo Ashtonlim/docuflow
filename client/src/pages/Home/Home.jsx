@@ -41,15 +41,15 @@ export default function Home() {
   return (
     <LayoutOne>
       <div className='pdfviewer'>
-        <h1>react-pdf sample page</h1>
-        {Object.keys(savedCoords).map((key, i) => {
+        <h1>Upload PDF and Extract Fields</h1>
+        {/* {Object.keys(savedCoords).map((key, i) => {
           {
             console.log(key, savedCoords[key])
             return savedCoords[key].map((coords) => (
               <div>{coords?.words || 'none'}</div>
             ))
           }
-        })}
+        })} */}
 
         <div className='pdfviewer__container'>
           <FileUploader onFileChange={onFileChange} />
