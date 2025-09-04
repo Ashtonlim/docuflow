@@ -1,8 +1,13 @@
 import { useMemo, useState } from 'react'
 import { Page } from 'react-pdf'
 import SelectionBox from './SelectionBox'
+import { useSelector, useDispatch } from 'react-redux'
+import { addCoordToPage } from '@/features/pdf/pdfSlice'
 
-const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
+const PDFPage = ({ pageNumber }) => {
+  const dispatch = useDispatch()
+  const pdf = useSelector((state) => state.pdf)
+
   const [page, setpage] = useState([])
   const [domStart, setdomStart] = useState([-1, -1])
   const [domEnd, setdomEnd] = useState([-1, -1])
@@ -10,24 +15,13 @@ const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
 
   console.log(`page ${pageNumber} is running`)
 
-  const handleDelete = (id) => {
-    setsavedCoords((prev) => ({
-      ...prev,
-      [pageNumber]: prev[pageNumber].filter((c) => c.id !== id),
-    }))
-  }
-
   // ✅ Memoize coordinate rendering
   const renderedCoords = useMemo(
     () =>
-      savedCoords[pageNumber]?.map((coords) => (
-        <SelectionBox
-          key={coords.id}
-          coords={coords}
-          handleDelete={handleDelete}
-        />
+      pdf.savedCoords[pageNumber]?.map((coords) => (
+        <SelectionBox key={coords.id} coords={coords} />
       )),
-    [savedCoords[pageNumber], pageNumber],
+    [pdf.savedCoords[pageNumber], pageNumber],
   )
 
   const getDOMxy = (e) => {
@@ -62,7 +56,7 @@ const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
     }
 
     setIsSelecting(false)
-    if (!(pageNumber in savedCoords)) {
+    if (!(pageNumber in pdf.savedCoords)) {
       console.error('saved coordinates did not initialise correctly.')
       return
     }
@@ -79,6 +73,8 @@ const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
       domY: startDomY,
       width: Math.abs(domStart[0] - domX),
       height: Math.abs(domStart[1] - domY),
+      pageNumber,
+      label: 'label name',
       words: [],
     }
 
@@ -96,16 +92,18 @@ const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
       let wy = page[i].transform[5]
 
       if (wx >= coord.pdfX && wx <= btmx && wy <= coord.pdfY && wy >= btmy) {
-        coord.words.push(page[i].str)
+        if (page[i].str == '') {
+          coord.words.push(' ')
+        } else {
+          coord.words.push(page[i].str)
+        }
       }
     }
 
     coord.id = `${coord.pdfX},${coord.pdfY},${coord.width},${coord.height}`
+    coord.wordAsStr = coord.words.join('')
 
-    setsavedCoords((prev) => ({
-      ...prev,
-      [pageNumber]: [...prev[pageNumber], coord],
-    }))
+    dispatch(addCoordToPage({ pageNumber, coord }))
   }
 
   const onPageLoadSuccess = async (pageElement) => {
@@ -141,6 +139,7 @@ const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
 
         {isSelecting && (
           <SelectionBox
+            canDelete={false}
             coords={{
               pdfX: Math.min(domStart[0], domEnd[0]),
               domY: Math.min(domStart[1], domEnd[1]),
