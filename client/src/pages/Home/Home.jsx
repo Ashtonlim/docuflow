@@ -21,7 +21,7 @@ const options = {
 export default function Home() {
   const [file, setFile] = useState(null)
   const [numPages, setNumPages] = useState()
-  const [pageText, setPageText] = useState({})
+  // const [pageText, setPageText] = useState({})
   const [savedCoords, setsavedCoords] = useState({})
 
   const onFileChange = (event) => {
@@ -55,8 +55,8 @@ export default function Home() {
                 <PDFPage
                   key={`page_${index + 1}`}
                   pageNumber={index + 1}
-                  pageText={pageText}
-                  setPageText={setPageText}
+                  // pageText={pageText}
+                  // setPageText={setPageText}
                   savedCoords={savedCoords}
                   setsavedCoords={setsavedCoords}
                 />

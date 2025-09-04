@@ -1,20 +1,34 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Page } from 'react-pdf'
 import SelectionBox from './SelectionBox'
 
 import './Sample.css'
 
-const PDFPage = ({
-  pageNumber,
-  pageText,
-  setPageText,
-  savedCoords,
-  setsavedCoords,
-}) => {
+const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
   const [page, setpage] = useState(null)
   const [domStart, setdomStart] = useState([-1, -1])
   const [domEnd, setdomEnd] = useState([-1, -1])
   const [isSelecting, setIsSelecting] = useState(false)
+
+  //   const renderedCoords = useMemo(() => {
+  //     savedCoords[pageNumber]?.map((coords) => (
+  //       <SelectionBox key={coords.id} coords={coords} />
+  //     ))
+  //   }, [savedCoords])
+
+  // ✅ Memoize coordinate rendering
+  const renderedCoords = useMemo(() => {
+    return savedCoords[pageNumber]?.map((coords) => (
+      <SelectionBox key={coords.id} coords={coords} />
+    ))
+  }, [savedCoords, pageNumber])
+
+  const getDOMxy = (e) => {
+    const rect = e.target.getBoundingClientRect()
+    const domX = e.clientX - rect.left
+    const domY = e.clientY - rect.top
+    return [domX, domY]
+  }
 
   const handleMouseDown = (e) => {
     const xy = getDOMxy(e)
@@ -24,21 +38,12 @@ const PDFPage = ({
   }
 
   const handleMouseMove = (e) => {
-    if (isSelecting === false) {
-      return false
+    if (isSelecting) {
+      setdomEnd(getDOMxy(e))
     }
-    setdomEnd(getDOMxy(e))
-  }
-
-  const getDOMxy = (e) => {
-    const rect = e.target.getBoundingClientRect()
-    const domX = e.clientX - rect.left
-    const domY = e.clientY - rect.top
-    return [domX, domY]
   }
 
   const handleMouseUp = (e) => {
-    console.log('savedCoords = ', savedCoords, pageNumber)
     setIsSelecting(false)
     if (!(pageNumber in savedCoords)) {
       alert('saved coordinates did not initialise correctly')
@@ -50,17 +55,18 @@ const PDFPage = ({
 
     // get top left point
     // pdf y coordinates start from btm. pdfy = pdfHeight - YRelativeToPDF
-    const topx = Math.min(domStart[0], domX)
-    const topy = rect.height - Math.min(domStart[1], domY)
+    const pdfX = Math.min(domStart[0], domX)
+    const startDomY = Math.min(domStart[1], domY)
+    const pdfY = rect.height - startDomY
 
     // w and h = diff between 2 clicked points
     const width = Math.abs(domStart[0] - domX)
     const height = Math.abs(domStart[1] - domY)
-    const btmx = topx + width
-    const btmy = topy - height
+    const btmx = pdfX + width
+    const btmy = pdfY - height
 
     // console.log(
-    //   `mouse up: clientX = ${e.clientX}, clientY = ${e.clientY}, topx = ${topx}, topy = ${topy}, btmx = ${btmx}, btmy = ${btmy}, width = ${width}, height = ${height}`,
+    //   `mouse up: clientX = ${e.clientX}, clientY = ${e.clientY}, pdfX = ${pdfX}, pdfY = ${pdfY}, btmx = ${btmx}, btmy = ${btmy}, width = ${width}, height = ${height}`,
     // )
 
     //  find words inside coordinates
@@ -69,33 +75,29 @@ const PDFPage = ({
       let wx = page[i].transform[4]
       let wy = page[i].transform[5]
 
-      if (wx >= topx && wx <= btmx && wy <= topy && wy >= btmy) {
+      if (wx >= pdfX && wx <= btmx && wy <= pdfY && wy >= btmy) {
         words.push(page[i].str)
       }
     }
 
-    console.log(words)
-    // setIsSelecting(false)
     setsavedCoords({
       ...savedCoords,
       [pageNumber]: [
         ...savedCoords[pageNumber],
         {
-          id: `${topx}${topy}${width}${height}`,
-          topx,
-          topy,
+          id: `${pdfX},${pdfY},${width},${height}`,
+          pdfX,
+          pdfY,
+          domY: startDomY,
           width,
           height,
           words,
         },
       ],
     })
-
-    // console.log(savedCoords)
   }
 
   const onPageLoadSuccess = async (pageElement) => {
-    console.log('pg no', pageNumber)
     const pagetext = (await pageElement.getTextContent()).items
     setsavedCoords((prev) => ({ ...prev, [pageNumber]: [] }))
     setpage(pagetext)
@@ -124,31 +126,29 @@ const PDFPage = ({
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
       >
-        {savedCoords[pageNumber]?.map((coords) => (
-          <SelectionBox key={coords.id} coords={coords} />
-        ))}
+        {renderedCoords}
         {isSelecting && (
-          //   <SelectionBox
-          //     coords={{
-          //       topx: Math.min(domStart[0], domEnd[0]),
-          //       topY: Math.min(domStart[1], domEnd[1]),
-          //       width: Math.abs(domStart[0] - domEnd[0]),
-          //       height: Math.abs(domStart[1] - domEnd[1]),
-          //     }}
-          //   />
-
-          <div
-            style={{
-              position: 'absolute',
-              border: '2px dashed #3b82f6',
-              backgroundColor: 'rgba(59, 130, 246, 0.2)',
-              pointerEvents: 'none',
-              left: Math.min(domStart[0], domEnd[0]),
-              top: Math.min(domStart[1], domEnd[1]),
+          <SelectionBox
+            coords={{
+              pdfX: Math.min(domStart[0], domEnd[0]),
+              domY: Math.min(domStart[1], domEnd[1]),
               width: Math.abs(domStart[0] - domEnd[0]),
               height: Math.abs(domStart[1] - domEnd[1]),
             }}
           />
+
+          //   <div
+          //     style={{
+          //       position: 'absolute',
+          //       border: '2px dashed #3b82f6',
+          //       backgroundColor: 'rgba(59, 130, 246, 0.2)',
+          //       pointerEvents: 'none',
+          //       left: Math.min(domStart[0], domEnd[0]),
+          //       top: Math.min(domStart[1], domEnd[1]),
+          //       width: Math.abs(domStart[0] - domEnd[0]),
+          //       height: Math.abs(domStart[1] - domEnd[1]),
+          //     }}
+          //   />
         )}
       </div>
     </div>
