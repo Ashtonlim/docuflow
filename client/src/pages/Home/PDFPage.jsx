@@ -2,8 +2,6 @@ import { useMemo, useState } from 'react'
 import { Page } from 'react-pdf'
 import SelectionBox from './SelectionBox'
 
-import './Sample.css'
-
 const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
   const [page, setpage] = useState([])
   const [domStart, setdomStart] = useState([-1, -1])
@@ -59,7 +57,10 @@ const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
   }
 
   const handleMouseUp = (e) => {
-    if (!isSelecting) return
+    if (isSelecting === false) {
+      return
+    }
+
     setIsSelecting(false)
     if (!(pageNumber in savedCoords)) {
       console.error('saved coordinates did not initialise correctly.')

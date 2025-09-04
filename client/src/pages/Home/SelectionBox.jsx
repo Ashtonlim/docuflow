@@ -12,7 +12,7 @@ const SelectionBox = ({ coords, handleDelete }) => {
         width: coords.width,
         height: coords.height,
         zIndex: 20,
-        pointerEvents: 'auto',
+        // pointerEvents: 'auto',
         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
       }}
     >
