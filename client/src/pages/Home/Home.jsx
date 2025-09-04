@@ -20,8 +20,6 @@ const options = {
 
 export default function Home() {
   const [file, setFile] = useState(null)
-  const [numPages, setNumPages] = useState()
-  // const [pageText, setPageText] = useState({})
   const [savedCoords, setsavedCoords] = useState({})
 
   const onFileChange = (event) => {
@@ -31,8 +29,13 @@ export default function Home() {
     }
   }
 
-  const onDocumentLoadSuccess = ({ numPages: nextNumPages }) => {
-    setNumPages(nextNumPages)
+  const onDocumentLoadSuccess = ({ numPages }) => {
+    console.log(numPages)
+    const init = {}
+    for (let i = 1; i <= numPages; i++) {
+      init[i] = []
+    }
+    setsavedCoords(init)
   }
 
   return (
@@ -49,14 +52,10 @@ export default function Home() {
               onLoadSuccess={onDocumentLoadSuccess}
               options={options}
             >
-              {Array.from(new Array(numPages), (_el, index) => (
-                // <Page pageNumber={index + 1} />
-                // <PDFPage pageNumber={index + 1} />
+              {Object.keys(savedCoords).map((_, index) => (
                 <PDFPage
                   key={`page_${index + 1}`}
                   pageNumber={index + 1}
-                  // pageText={pageText}
-                  // setPageText={setPageText}
                   savedCoords={savedCoords}
                   setsavedCoords={setsavedCoords}
                 />

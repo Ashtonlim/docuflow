@@ -10,18 +10,27 @@ const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
   const [domEnd, setdomEnd] = useState([-1, -1])
   const [isSelecting, setIsSelecting] = useState(false)
 
-  //   const renderedCoords = useMemo(() => {
-  //     savedCoords[pageNumber]?.map((coords) => (
-  //       <SelectionBox key={coords.id} coords={coords} />
-  //     ))
-  //   }, [savedCoords])
+  console.log(`page ${pageNumber} is running`)
+
+  const handleDelete = (id) => {
+    setsavedCoords((prev) => ({
+      ...prev,
+      [pageNumber]: prev[pageNumber].filter((c) => c.id !== id),
+    }))
+  }
 
   // ✅ Memoize coordinate rendering
-  const renderedCoords = useMemo(() => {
-    return savedCoords[pageNumber]?.map((coords) => (
-      <SelectionBox key={coords.id} coords={coords} />
-    ))
-  }, [savedCoords, pageNumber])
+  const renderedCoords = useMemo(
+    () =>
+      savedCoords[pageNumber]?.map((coords) => (
+        <SelectionBox
+          key={coords.id}
+          coords={coords}
+          handleDelete={handleDelete}
+        />
+      )),
+    [savedCoords[pageNumber], pageNumber],
+  )
 
   const getDOMxy = (e) => {
     const rect = e.target.getBoundingClientRect()
@@ -99,7 +108,6 @@ const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
 
   const onPageLoadSuccess = async (pageElement) => {
     const pagetext = (await pageElement.getTextContent()).items
-    setsavedCoords((prev) => ({ ...prev, [pageNumber]: [] }))
     setpage(pagetext)
   }
 
@@ -115,7 +123,7 @@ const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
       <div
         style={{
           position: 'absolute',
-          zIndex: 100,
+          zIndex: 10,
           top: 0,
           left: 0,
           width: '100%',
@@ -136,19 +144,6 @@ const PDFPage = ({ pageNumber, savedCoords, setsavedCoords }) => {
               height: Math.abs(domStart[1] - domEnd[1]),
             }}
           />
-
-          //   <div
-          //     style={{
-          //       position: 'absolute',
-          //       border: '2px dashed #3b82f6',
-          //       backgroundColor: 'rgba(59, 130, 246, 0.2)',
-          //       pointerEvents: 'none',
-          //       left: Math.min(domStart[0], domEnd[0]),
-          //       top: Math.min(domStart[1], domEnd[1]),
-          //       width: Math.abs(domStart[0] - domEnd[0]),
-          //       height: Math.abs(domStart[1] - domEnd[1]),
-          //     }}
-          //   />
         )}
       </div>
     </div>
