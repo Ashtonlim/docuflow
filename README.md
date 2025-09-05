@@ -3,6 +3,8 @@
 ## Potentially interesting resources
 
 1. https://www.timpaul.co.uk/posts/using-ai-to-generate-web-forms-from-pdfs/
+2. https://www.youtube.com/watch?v=moGsPRCcivk
+3.
 
 ### Engineering
 

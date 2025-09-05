@@ -5,8 +5,9 @@ import 'react-pdf/dist/Page/TextLayer.css'
 import LayoutOne from '@/components/LayoutOne'
 import FileUploader from './FileUploader'
 import PDFPage from './PDFPage'
-import { initFile, updateLabel } from '@/features/pdf/pdfSlice'
+import { initFile } from '@/features/pdf/pdfSlice'
 import { useSelector, useDispatch } from 'react-redux'
+import SelectedFields from './SelectedFields'
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -61,32 +62,7 @@ export default function Home() {
                       key={`pg_${pageNumber}`}
                       pageNumber={+pageNumber}
                     />
-                    <div>
-                      {pdf.savedCoords[pageNumber].map(
-                        ({ label, id, wordAsStr }, i) => (
-                          <div>
-                            {/* <div></div> */}
-                            <div className='ml-5'>
-                              {i}:{' '}
-                              <input
-                                type='text'
-                                value={label}
-                                onChange={(e) =>
-                                  dispatch(
-                                    updateLabel({
-                                      value: e.target.value,
-                                      id,
-                                      pageNumber,
-                                    }),
-                                  )
-                                }
-                              />{' '}
-                              - {wordAsStr || ''}
-                            </div>
-                          </div>
-                        ),
-                      )}
-                    </div>
+                    <SelectedFields pageNumber={pageNumber} />
                   </div>
                 ))}
               </Document>
