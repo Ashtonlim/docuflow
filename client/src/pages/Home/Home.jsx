@@ -1,13 +1,14 @@
-import { useState } from 'react'
-import { pdfjs, Document } from 'react-pdf'
-import 'react-pdf/dist/Page/AnnotationLayer.css'
-import 'react-pdf/dist/Page/TextLayer.css'
 import LayoutOne from '@/components/LayoutOne'
+import { initFile } from '@/features/pdf/pdfSlice'
+import { useState } from 'react'
+import { Document, pdfjs } from 'react-pdf'
+import { useDispatch, useSelector } from 'react-redux'
 import FileUploader from './FileUploader'
 import PDFPage from './PDFPage'
-import { initFile } from '@/features/pdf/pdfSlice'
-import { useSelector, useDispatch } from 'react-redux'
 import SelectedFields from './SelectedFields'
+
+import 'react-pdf/dist/Page/AnnotationLayer.css'
+import 'react-pdf/dist/Page/TextLayer.css'
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.mjs',
@@ -21,6 +22,7 @@ const options = {
 }
 
 export default function Home() {
+  console.log('hi')
   const pdf = useSelector((state) => state.pdf)
   const dispatch = useDispatch()
   const [file, setFile] = useState(null)

@@ -1,5 +1,5 @@
 import { updateLabel } from '@/features/pdf/pdfSlice'
-import { useSelector, useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 const SelectedFields = ({ pageNumber }) => {
   const pdf = useSelector((state) => state.pdf)

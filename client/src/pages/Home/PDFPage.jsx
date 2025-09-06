@@ -1,8 +1,8 @@
+import { addCoordToPage } from '@/features/pdf/pdfSlice'
 import { useMemo, useState } from 'react'
 import { Page } from 'react-pdf'
+import { useDispatch, useSelector } from 'react-redux'
 import SelectionBox from './SelectionBox'
-import { useSelector, useDispatch } from 'react-redux'
-import { addCoordToPage } from '@/features/pdf/pdfSlice'
 
 const PDFPage = ({ pageNumber }) => {
   const dispatch = useDispatch()
