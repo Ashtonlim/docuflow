@@ -26,3 +26,6 @@ dist-ssr
 /dist
 /pdfs
 
+
+.venv
+__pycache__/

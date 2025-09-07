@@ -1,5 +1,5 @@
-import { useDispatch } from 'react-redux'
 import { delCoordFromPage } from '@/features/pdf/pdfSlice'
+import { useDispatch } from 'react-redux'
 const SelectionBox = ({ coords, canDelete = true }) => {
   // console.log('add', coords)
   const dispatch = useDispatch()
