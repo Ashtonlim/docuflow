@@ -10,7 +10,7 @@
   },
   "ruff.configuration": {
     "lint": {
-      "extend-select": ["TID251"],
+      // "extend-select": ["TID251"],
       "flake8-tidy-imports": {
         "banned-api": {}
       }
