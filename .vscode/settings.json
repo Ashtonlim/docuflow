@@ -1,0 +1,32 @@
+{
+  "[python]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "charliermarsh.ruff",
+
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+      "source.organizeImports": "explicit"
+    }
+  },
+  "ruff.configuration": {
+    "lint": {
+      "extend-select": ["TID251"],
+      "flake8-tidy-imports": {
+        "banned-api": {}
+      }
+    },
+    "format": {
+      "quote-style": "single"
+    }
+  },
+  "notebook.formatOnSave.enabled": true, // Optional: for Jupyter Notebooks
+  "notebook.codeActionsOnSave": {
+    // Optional: for Jupyter Notebooks
+    "notebook.source.fixAll": "explicit",
+    "notebook.source.organizeImports": "explicit"
+  },
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+  "editor.formatOnSave": true
+}
