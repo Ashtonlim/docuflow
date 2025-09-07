@@ -1,11 +1,9 @@
 services:
-  # A Docker web service
+  # A Docker web service. Render already has uv.
   - type: web
     name: fastapi-example
     runtime: python
     plan: free
     autoDeploy: false
-    buildCommand: |
-      curl -LsSf https://astral.sh/uv/install.sh | sh
-      cd server && uv sync --frozen
-    startCommand: cd server && uvicorn main:app --host 0.0.0.0 --port $PORT
+    buildCommand: cd server && uv sync --frozen
+    startCommand: cd server && uv run uvicorn main:app --host 0.0.0.0 --port $PORTu
