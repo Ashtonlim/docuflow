@@ -30,3 +30,4 @@ dist-ssr
 .venv
 __pycache__/
 saved_migrations
+minio.exe

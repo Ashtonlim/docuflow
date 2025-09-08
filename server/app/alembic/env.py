@@ -5,11 +5,13 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 from sqlmodel import SQLModel
 
-from app.models import doc  # noqa: F401
+# imported to give awareness to alembic on models used
+from app.models import docs  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
 
 DB_PATH = str((Path().parent / 'database.db').resolve())
 config.set_main_option('sqlalchemy.url', f'sqlite:///{DB_PATH}')
