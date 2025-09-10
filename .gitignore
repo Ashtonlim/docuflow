@@ -31,3 +31,4 @@ dist-ssr
 __pycache__/
 saved_migrations
 minio.exe
+mc.exe

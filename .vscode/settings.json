@@ -16,7 +16,8 @@
       }
     },
     "format": {
-      "quote-style": "single"
+      "quote-style": "single",
+      "indent-style": "space"
     }
   },
   "notebook.formatOnSave.enabled": true, // Optional: for Jupyter Notebooks
