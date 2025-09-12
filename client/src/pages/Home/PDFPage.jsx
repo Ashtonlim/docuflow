@@ -1,4 +1,4 @@
-import { addCoordToPage } from '@/features/pdf/pdfSlice'
+import { addBoundingBox } from '@/features/pdf/pdfSlice'
 import { useMemo, useState } from 'react'
 import { Page } from 'react-pdf'
 import { useDispatch, useSelector } from 'react-redux'
@@ -18,10 +18,10 @@ const PDFPage = ({ pageNumber }) => {
   // ✅ Memoize coordinate rendering
   const renderedCoords = useMemo(
     () =>
-      pdf.savedCoords[pageNumber]?.map((coords) => (
+      pdf.bounding_boxes?.map((coords) => (
         <SelectionBox key={coords.id} coords={coords} />
       )),
-    [pdf.savedCoords[pageNumber], pageNumber],
+    [pdf.bounding_boxes, pageNumber],
   )
 
   const getDOMxy = (e) => {
@@ -51,15 +51,12 @@ const PDFPage = ({ pageNumber }) => {
   }
 
   const handleMouseUp = (e) => {
+    // prevent all mouseups from running
     if (isSelecting === false) {
       return
     }
 
     setIsSelecting(false)
-    if (!(pageNumber in pdf.savedCoords)) {
-      console.error('saved coordinates did not initialise correctly.')
-      return
-    }
 
     const rect = e.currentTarget.getBoundingClientRect()
     const [domX, domY] = getDOMxy(e)
@@ -103,7 +100,7 @@ const PDFPage = ({ pageNumber }) => {
     coord.id = `${coord.pdfX},${coord.pdfY},${coord.width},${coord.height}`
     coord.wordAsStr = coord.words.join('')
 
-    dispatch(addCoordToPage({ pageNumber, coord }))
+    dispatch(addBoundingBox(coord))
   }
 
   const onPageLoadSuccess = async (pageElement) => {

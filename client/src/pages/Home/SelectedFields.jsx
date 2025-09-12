@@ -6,28 +6,30 @@ const SelectedFields = ({ pageNumber }) => {
   const dispatch = useDispatch()
   return (
     <div>
-      {pdf.savedCoords[pageNumber].map(({ label, id, wordAsStr }, i) => (
-        <div>
-          {/* <div></div> */}
-          <div className='ml-5'>
-            {i}:{' '}
-            <input
-              type='text'
-              value={label}
-              onChange={(e) =>
-                dispatch(
-                  updateLabel({
-                    value: e.target.value,
-                    id,
-                    pageNumber,
-                  }),
-                )
-              }
-            />{' '}
-            - {wordAsStr || ''}
+      {pdf.bounding_boxes
+        .filter((bb) => bb.pageNumber === pageNumber)
+        .map(({ label, id, wordAsStr }, i) => (
+          <div>
+            {/* <div></div> */}
+            <div className='ml-5'>
+              {i}:{' '}
+              <input
+                type='text'
+                value={label}
+                onChange={(e) =>
+                  dispatch(
+                    updateLabel({
+                      value: e.target.value,
+                      id,
+                      pageNumber,
+                    }),
+                  )
+                }
+              />{' '}
+              - {wordAsStr || ''}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
     </div>
   )
 }

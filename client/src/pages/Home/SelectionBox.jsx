@@ -23,7 +23,7 @@ const SelectionBox = ({ coords, canDelete = true }) => {
         <button
           onClick={(e) => {
             e.stopPropagation()
-            dispatch(delCoordFromPage(coords))
+            dispatch(delCoordFromPage(coords.id))
           }}
           style={{
             position: 'absolute',

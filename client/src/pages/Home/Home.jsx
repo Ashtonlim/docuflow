@@ -22,14 +22,14 @@ const options = {
 }
 
 export default function Home() {
-  console.log('hi')
   const pdf = useSelector((state) => state.pdf)
   const dispatch = useDispatch()
   const [file, setFile] = useState(null)
+  const [pages, setPages] = useState(0)
 
   const onFileChange = (event) => {
     const nextFile = event.target?.files?.[0]
-    console.log('foudn file'.nextFile)
+    console.log('found file'.nextFile)
     if (nextFile) {
       setFile(nextFile)
     }
@@ -38,6 +38,7 @@ export default function Home() {
   const onDocumentLoadSuccess = ({ numPages }) => {
     const { name, size, type } = file
     dispatch(initFile({ name, size, type, numPages }))
+    setPages(numPages)
   }
 
   return (
@@ -58,13 +59,13 @@ export default function Home() {
                 onLoadSuccess={onDocumentLoadSuccess}
                 options={options}
               >
-                {Object.keys(pdf.savedCoords).map((pageNumber) => (
+                {[...Array(pages).keys()].map((pageNumber) => (
                   <div className='ruRow'>
                     <PDFPage
-                      key={`pg_${pageNumber}`}
-                      pageNumber={+pageNumber}
+                      key={`pg_${pageNumber + 1}`}
+                      pageNumber={pageNumber + 1}
                     />
-                    <SelectedFields pageNumber={pageNumber} />
+                    <SelectedFields pageNumber={pageNumber + 1} />
                   </div>
                 ))}
               </Document>
