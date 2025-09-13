@@ -42,11 +42,11 @@ def create_template(session: SessionDep, data: CreateTemplate) -> Templates:
     print('creating templated', data)
     # get all documents
 
-    res = session.exec(select(Templates).where(Templates.created_by == USER))
+    res = session.exec(select(Templates).where(Templates.created_by == 1))
     print(f'{res=}')
 
     template = Templates(
-        created_by=USER, name=data.name, description=data.name, bounding_boxes=data.bounding_boxes
+        created_by=1, name=data.name, description=data.name, bounding_boxes=data.bounding_boxes
     )
 
     session.add(template)

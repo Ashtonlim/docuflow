@@ -7,6 +7,7 @@ from sqlmodel import select
 
 from app.core.db import SessionDep
 from app.models.docs import Docs
+from app.models.users import Users  # noqa: F401
 
 # from app.models.users import Users
 
@@ -38,17 +39,20 @@ async def upload_document(session: SessionDep, file: UploadFile) -> Docs:
         file.file.seek(0)
         s3.upload_fileobj(file.file, BUCKET, object_key)
     except Exception as e:
+        print('err', e)
         raise HTTPException(status_code=500, detail=f'S3 upload failed: {e}')
 
     url = f'http://127.0.0.1:9090/browser/pdf-docs/{object_key}'
-    doc = Docs(id=file_id, created_by=USER, file_name=file.filename, file_path=url)
+    doc = Docs(id=file_id, created_by=1, file_name=file.filename, file_path=url)
 
     try:
         session.add(doc)
         session.commit()
         session.refresh(doc)
     except Exception as e:
+        print('err2', e)
         session.rollback()
+
         # rollback step: delete object from S3
         s3.delete_object(Bucket=BUCKET, Key=object_key)
         raise HTTPException(status_code=500, detail=f'DB commit failed: {e}')

@@ -10,7 +10,7 @@ class Docs(SQLModel, table=True):
     id: str | None = Field(default=None, primary_key=True)
     file_name: str | None = Field(default=None)
     file_path: str = Field(unique=True)
-    created_by: str | None = Field(default=None, foreign_key='users.id')
+    created_by: int | None = Field(default=None, foreign_key='users.id')
 
     # print('from Templates', j)
 
@@ -20,7 +20,7 @@ class Templates(SQLModel, table=True):
 
     id: int | None = Field(default=None, primary_key=True)
     pdf_id: str | None = Field(default=None, foreign_key='documents.id')
-    created_by: str | None = Field(default=None, foreign_key='users.id')
+    created_by: int | None = Field(default=None, foreign_key='users.id')
     name: str | None = Field(default=None)
     description: str | None = Field(default=None)
     bounding_boxes: list[dict[str, Any]] = Field(
