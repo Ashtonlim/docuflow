@@ -1,11 +1,9 @@
 import LayoutOne from '@/components/LayoutOne'
 
+// const data = [{ file_name: 'sick.pdf' }]
+
 const Templates = () => {
-  return (
-    <LayoutOne>
-      <div>Hello</div>
-    </LayoutOne>
-  )
+  return <LayoutOne></LayoutOne>
 }
 
 export default Templates
