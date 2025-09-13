@@ -13,7 +13,7 @@ const PDFPage = ({ pageNumber }) => {
   const [domEnd, setdomEnd] = useState([-1, -1])
   const [isSelecting, setIsSelecting] = useState(false)
 
-  console.log(`page ${pageNumber} is running`)
+  console.log(`page ${pageNumber} is running`, page)
 
   // ✅ Memoize coordinate rendering
   const renderedCoords = useMemo(
@@ -65,11 +65,11 @@ const PDFPage = ({ pageNumber }) => {
     // get top left point
     // pdf y coordinates start from btm. pdfy = pdfHeight - YRelativeToPDF
     const coord = {
-      pdfX: Math.min(domStart[0], domX),
-      pdfY: rect.height - startDomY,
+      pdfX: Math.min(domStart[0], domX) / page.width,
+      pdfY: (rect.height - startDomY) / page.width,
       domY: startDomY,
-      width: Math.abs(domStart[0] - domX),
-      height: Math.abs(domStart[1] - domY),
+      width: Math.abs(domStart[0] - domX) / page.width,
+      height: Math.abs(domStart[1] - domY) / page.width,
       pageNumber,
       label: 'label name',
       words: [],
@@ -85,8 +85,8 @@ const PDFPage = ({ pageNumber }) => {
 
     //  find words inside coordinates
     for (let i = 0; i < page.length; i++) {
-      let wx = page[i].transform[4]
-      let wy = page[i].transform[5]
+      let wx = page[i].transform[4] / page.width
+      let wy = page[i].transform[5] / page.width
 
       if (wx >= coord.pdfX && wx <= btmx && wy <= coord.pdfY && wy >= btmy) {
         if (page[i].str == '') {
@@ -99,6 +99,7 @@ const PDFPage = ({ pageNumber }) => {
 
     coord.id = `${coord.pdfX},${coord.pdfY},${coord.width},${coord.height}`
     coord.wordAsStr = coord.words.join('')
+    console.log(coord)
 
     dispatch(addBoundingBox(coord))
   }

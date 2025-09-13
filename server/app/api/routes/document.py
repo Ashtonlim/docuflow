@@ -24,12 +24,15 @@ router = APIRouter(prefix='/documents', tags=['documents'])
 #  = File(...)
 
 BUCKET = 'pdf-docs'
+USER = 'ash'
 
 
 @router.post('/')
 async def upload_document(session: SessionDep, file: UploadFile) -> Docs:
     file_id = str(uuid.uuid4())
     object_key = f'{file_id}.pdf'
+
+    print('going upload file', file_id, object_key)
 
     try:
         file.file.seek(0)
@@ -38,7 +41,7 @@ async def upload_document(session: SessionDep, file: UploadFile) -> Docs:
         raise HTTPException(status_code=500, detail=f'S3 upload failed: {e}')
 
     url = f'http://127.0.0.1:9090/browser/pdf-docs/{object_key}'
-    doc = Docs(id=file_id, file_name=file.filename, file_path=url)
+    doc = Docs(id=file_id, created_by=USER, file_name=file.filename, file_path=url)
 
     try:
         session.add(doc)
@@ -56,7 +59,7 @@ async def upload_document(session: SessionDep, file: UploadFile) -> Docs:
 
 
 @router.get('/')
-def read_documents(
+def get_documents(
     session: SessionDep,
     offset: int = 0,
     limit: Annotated[int, Query(le=100)] = 100,
@@ -66,8 +69,15 @@ def read_documents(
 
 
 @router.get('/{document_id}')
-def read_document(document_id: int, session: SessionDep) -> Docs:
+def get_document(document_id: int, session: SessionDep) -> Docs:
     document = session.get(Docs, document_id)
+    if not document:
+        raise HTTPException(status_code=404, detail='Document not found')
+    return document
+
+
+def get_document_by_name(file_name: str, session: SessionDep) -> Docs:
+    document = session.get(Docs, file_name)
     if not document:
         raise HTTPException(status_code=404, detail='Document not found')
     return document
@@ -80,4 +90,6 @@ def delete_document(document_id: int, session: SessionDep):
         raise HTTPException(status_code=404, detail='Document not found')
     session.delete(document)
     session.commit()
+
+    # also must delete all associated templates
     return {'ok': True}

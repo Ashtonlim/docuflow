@@ -1,14 +1,13 @@
-import React from 'react'
 import { Link } from 'react-router'
 
 import config from '@/config.js'
-import ThemeToggle from './ThemeToggle'
 import LinkButton from './LinkButton'
+import ThemeToggle from './ThemeToggle'
 
 const navLinks = {
   Home: '/',
   About: '/about',
-  'HSK 1': '/hsk-1',
+  Templates: '/templates',
   'HSK 2': '/hsk-2',
   'HSK 3': '/hsk-3',
 }
