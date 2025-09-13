@@ -8,19 +8,17 @@ const PDFPage = ({ pageNumber }) => {
   const dispatch = useDispatch()
   const pdf = useSelector((state) => state.pdf)
 
-  const [page, setpage] = useState([])
+  const [page, setPage] = useState([])
   const [domStart, setdomStart] = useState([-1, -1])
   const [domEnd, setdomEnd] = useState([-1, -1])
   const [isSelecting, setIsSelecting] = useState(false)
 
-  console.log(`page ${pageNumber} is running`, page)
-
   // ✅ Memoize coordinate rendering
   const renderedCoords = useMemo(
     () =>
-      pdf.bounding_boxes?.map((coords) => (
-        <SelectionBox key={coords.id} coords={coords} />
-      )),
+      pdf.bounding_boxes
+        ?.filter((c) => c.pageNumber === pageNumber)
+        ?.map((coords) => <SelectionBox key={coords.id} coords={coords} />),
     [pdf.bounding_boxes, pageNumber],
   )
 
@@ -66,11 +64,13 @@ const PDFPage = ({ pageNumber }) => {
     // pdf y coordinates start from btm. pdfy = pdfHeight - YRelativeToPDF
     const coord = {
       pdfX: Math.min(domStart[0], domX) / page.width,
-      pdfY: (rect.height - startDomY) / page.width,
-      domY: startDomY,
+      pdfY: (rect.height - startDomY) / page.height,
+      domY: startDomY / page.height,
       width: Math.abs(domStart[0] - domX) / page.width,
-      height: Math.abs(domStart[1] - domY) / page.width,
+      height: Math.abs(domStart[1] - domY) / page.height,
       pageNumber,
+      pageWidth: page.width,
+      pageHeight: page.height,
       label: 'label name',
       words: [],
     }
@@ -83,52 +83,33 @@ const PDFPage = ({ pageNumber }) => {
     //   `mouse up: clientX = ${e.clientX}, clientY = ${e.clientY}, coords = ${coord}`,
     // )
 
+    const text = page.pagetext
     //  find words inside coordinates
-    for (let i = 0; i < page.length; i++) {
-      let wx = page[i].transform[4] / page.width
-      let wy = page[i].transform[5] / page.width
+    for (let i = 0; i < text.length; i++) {
+      let wx = text[i].transform[4] / page.width
+      let wy = text[i].transform[5] / page.height
 
       if (wx >= coord.pdfX && wx <= btmx && wy <= coord.pdfY && wy >= btmy) {
-        if (page[i].str == '') {
-          coord.words.push(' ')
-        } else {
-          coord.words.push(page[i].str)
-        }
+        coord.words.push(text[i].str == '' ? ' ' : text[i].str)
       }
     }
 
     coord.id = `${coord.pdfX},${coord.pdfY},${coord.width},${coord.height}`
     coord.wordAsStr = coord.words.join('')
-    console.log(coord)
 
     dispatch(addBoundingBox(coord))
   }
 
   const onPageLoadSuccess = async (pageElement) => {
     const pagetext = (await pageElement.getTextContent()).items
-    setpage(pagetext)
+    setPage({ width: pageElement.width, height: pageElement.height, pagetext })
   }
 
   return (
-    <div
-      style={{
-        position: 'relative',
-        display: 'inline-block',
-        marginTop: 10,
-      }}
-    >
+    <div className='relative mt-3 inline-block'>
       <Page pageNumber={pageNumber} onLoadSuccess={onPageLoadSuccess} />
       <div
-        className='overlay'
-        style={{
-          position: 'absolute',
-          zIndex: 10,
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          cursor: 'crosshair',
-        }}
+        className='overlay absolute top-0 left-0 z-10 h-full w-full cursor-crosshair'
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -139,10 +120,12 @@ const PDFPage = ({ pageNumber }) => {
           <SelectionBox
             canDelete={false}
             coords={{
-              pdfX: Math.min(domStart[0], domEnd[0]),
-              domY: Math.min(domStart[1], domEnd[1]),
-              width: Math.abs(domStart[0] - domEnd[0]),
-              height: Math.abs(domStart[1] - domEnd[1]),
+              pdfX: Math.min(domStart[0], domEnd[0]) / page.width,
+              domY: Math.min(domStart[1], domEnd[1]) / page.height,
+              width: Math.abs(domStart[0] - domEnd[0]) / page.width,
+              height: Math.abs(domStart[1] - domEnd[1]) / page.height,
+              pageWidth: page.width,
+              pageHeight: page.height,
             }}
           />
         )}
@@ -152,3 +135,18 @@ const PDFPage = ({ pageNumber }) => {
 }
 
 export default PDFPage
+
+// style={{
+//   position: 'relative',
+//   display: 'inline-block',
+//   marginTop: 10,
+// }}
+//     style={{
+//     position: 'absolute',
+//     zIndex: 10,
+//     top: 0,
+//     left: 0,
+//     width: '100%',
+//     height: '100%',
+//     cursor: 'crosshair',
+//   }}

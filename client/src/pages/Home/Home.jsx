@@ -7,6 +7,9 @@ import FileUploader from './FileUploader'
 import PDFPage from './PDFPage'
 import SelectedFields from './SelectedFields'
 
+// import { uploadPDF } from "../../features/pdf/pdfSlice"
+import { uploadPDF } from '@/features/pdf/pdfSlice'
+
 import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
 
@@ -29,10 +32,12 @@ export default function Home() {
 
   const onFileChange = (event) => {
     const nextFile = event.target?.files?.[0]
-    console.log('found file'.nextFile)
+    console.log('found file', nextFile, pdf)
     if (nextFile) {
       setFile(nextFile)
     }
+
+    dispatch(uploadPDF(nextFile))
   }
 
   const onDocumentLoadSuccess = ({ numPages }) => {
@@ -41,17 +46,34 @@ export default function Home() {
     setPages(numPages)
   }
 
+  const handleCreateTemplate = () => {
+    return
+  }
+  // console.log('state of pdf', pdf)
+
   return (
     <LayoutOne>
       <div className='pdfviewer'>
-        <h4>Create Template to Extract Fields from PDFs </h4>
-        <div>
-          Select areas of your PDF you wish to automate extracting text from.
-          Save this template to be used on other PDFs.
-        </div>
+        <div className='ruCol'>
+          <h4>Create Template to Extract Fields from PDFs </h4>
+          <div>
+            Select areas of your PDF you wish to automate extracting text from.
+            Save this template to be used on other PDFs.
+          </div>
 
+          <div className=''>
+            {file === null && <FileUploader onFileChange={onFileChange} />}
+            {file && (
+              <button
+                onClick={handleCreateTemplate}
+                className='btn btn-soft mt-3'
+              >
+                Save Template
+              </button>
+            )}
+          </div>
+        </div>
         <div className='pdfviewer__container'>
-          <FileUploader onFileChange={onFileChange} />
           {file && (
             <div className='pdfviewer__container__document'>
               <Document
@@ -60,11 +82,8 @@ export default function Home() {
                 options={options}
               >
                 {[...Array(pages).keys()].map((pageNumber) => (
-                  <div className='ruRow'>
-                    <PDFPage
-                      key={`pg_${pageNumber + 1}`}
-                      pageNumber={pageNumber + 1}
-                    />
+                  <div key={`pg_${pageNumber + 1}`} className='ruRow'>
+                    <PDFPage pageNumber={pageNumber + 1} />
                     <SelectedFields pageNumber={pageNumber + 1} />
                   </div>
                 ))}
