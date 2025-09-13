@@ -29,5 +29,14 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports": "explicit"
   },
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "driver": "SQLite",
+      "database": "${workspaceFolder:docuflow}/server/database.db",
+      "name": "test"
+    }
+  ],
+  "sqltools.useNodeRuntime": true
 }
