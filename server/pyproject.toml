@@ -16,6 +16,9 @@ dev = [
     "ruff>=0.12.12",
 ]
 
+[lint]
+# Disable fix for unused imports (`F401`).
+unfixable = ["F401"]
 
 [tool.ruff]
 line-length = 100

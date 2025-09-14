@@ -6,7 +6,7 @@ from sqlalchemy import engine_from_config, pool
 from sqlmodel import SQLModel
 
 # imported to give awareness to alembic on models used
-from app.models import docs, users  # noqa: F401
+from app.models import docs, users
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -3,9 +3,9 @@ from fastapi import APIRouter
 from sqlmodel import select
 
 from app.core.db import SessionDep
-from app.models.docs import CreateTemplate, Templates
 
-# from app.models.users import Users
+# from app.models import Users
+from app.models.docs import CreateTemplate, Templates
 
 s3 = boto3.client(
     's3',

@@ -1,13 +1,16 @@
+import os
 import uuid
 from typing import Annotated
 
 import boto3
 from fastapi import APIRouter, HTTPException, Query, UploadFile
+from fastapi.responses import StreamingResponse
 from sqlmodel import select
 
 from app.core.db import SessionDep
-from app.models.docs import Docs
-from app.models.users import Users  # noqa: F401
+
+# need to add users so fastapi is aware of tables
+from app.models import Docs, Users
 
 # from app.models.users import Users
 
@@ -31,9 +34,8 @@ USER = 'ash'
 @router.post('/')
 async def upload_document(session: SessionDep, file: UploadFile) -> Docs:
     file_id = str(uuid.uuid4())
-    object_key = f'{file_id}.pdf'
-
-    print('going upload file', file_id, object_key)
+    name, ext = os.path.splitext(file.filename)
+    object_key = f'{file_id}{ext}'
 
     try:
         file.file.seek(0)
@@ -73,14 +75,23 @@ def get_documents(
 
 
 @router.get('/{document_id}')
-def get_document(document_id: int, session: SessionDep) -> Docs:
-    document = session.get(Docs, document_id)
-    if not document:
-        raise HTTPException(status_code=404, detail='Document not found')
-    return document
+def get_document(document_id: str, session: SessionDep):
+    # async def get_file(filename: str):
+    try:
+        data = s3.get_object(BUCKET, document_id)
+    except Exception as e:
+        raise HTTPException(status_code=404, detail=f'File not found: {e}')
+
+    # We’ll stream the object back
+    return StreamingResponse(
+        data,
+        media_type='application/pdf',
+        headers={'Content-Disposition': f'inline; filename="{document_id}"'},
+    )
 
 
-def get_document_by_name(file_name: str, session: SessionDep) -> Docs:
+@router.get('/{file_name}')
+def get_document_by_name(file_name: str, session: SessionDep):
     document = session.get(Docs, file_name)
     if not document:
         raise HTTPException(status_code=404, detail='Document not found')
@@ -88,12 +99,21 @@ def get_document_by_name(file_name: str, session: SessionDep) -> Docs:
 
 
 @router.delete('/{document_id}')
-def delete_document(document_id: int, session: SessionDep):
+def delete_document(document_id: str, session: SessionDep):
     document = session.get(Docs, document_id)
-    if not document:
-        raise HTTPException(status_code=404, detail='Document not found')
-    session.delete(document)
-    session.commit()
 
-    # also must delete all associated templates
+    # Delete the object
+    try:
+        response = s3.delete_object(Bucket=BUCKET, Key=f'{document_id}.pdf')
+        print(f"Object '{document_id}' deleted successfully from bucket '{BUCKET}'.")
+        print(response)
+        session.delete(document)
+        session.commit()
+        session.refresh(document)
+    except Exception as e:
+        session.rollback()
+        print(f'Error deleting object: {e}')
+        raise HTTPException(status_code=404, detail='Document not found')
+
+    # # also must delete all associated templates
     return {'ok': True}
