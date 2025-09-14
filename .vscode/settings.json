@@ -4,13 +4,17 @@
     "editor.defaultFormatter": "charliermarsh.ruff",
 
     "editor.codeActionsOnSave": {
-      "source.fixAll": "explicit",
+      // "source.fixAll": "explicit",
       "source.organizeImports": "explicit"
     }
   },
   "ruff.configuration": {
     "lint": {
-      // "extend-select": ["TID251"],
+      "lint": {
+        "unfixable": ["F401"]
+      },
+
+      "extend-select": ["TID251"],
       "flake8-tidy-imports": {
         "banned-api": {}
       }
