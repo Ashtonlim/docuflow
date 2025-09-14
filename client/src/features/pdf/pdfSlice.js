@@ -9,6 +9,7 @@ const initialState = {
   status: 'idle',
   err: null,
   bounding_boxes: [],
+  goto: '',
 }
 
 export const uploadPDF = createAsyncThunk(
@@ -24,9 +25,9 @@ export const uploadPDF = createAsyncThunk(
         method: 'post',
         body: formData,
       })
-      const actual = res.json()
-      console.log(res, actual)
-      return actual
+      const data = await res.json()
+      console.log('calling async, res= ', data)
+      return data
     } catch (e) {
       console.log('catch part of uploadpdf', e)
       return thunkApi.rejectWithValue(e)
@@ -68,15 +69,12 @@ export const pdfSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(uploadPDF.pending, (state, action) => {
-        console.log(state, action)
-      })
+      .addCase(uploadPDF.pending, (state, action) => {})
       .addCase(uploadPDF.fulfilled, (state, action) => {
-        console.log(state, action)
+        console.log('from fulfilled', action.payload)
+        state.goto = action.payload.id
       })
-      .addCase(uploadPDF.rejected, (state, action) => {
-        console.log(state, action)
-      })
+      .addCase(uploadPDF.rejected, (state, action) => {})
   },
 })
 

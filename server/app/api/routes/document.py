@@ -3,8 +3,8 @@ import uuid
 from typing import Annotated
 
 import boto3
-from fastapi import APIRouter, HTTPException, Query, UploadFile
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, HTTPException, Query, Response, UploadFile
+from fastapi.responses import FileResponse, StreamingResponse
 from sqlmodel import select
 
 from app.core.db import SessionDep
@@ -34,15 +34,16 @@ USER = 'ash'
 @router.post('/')
 async def upload_document(session: SessionDep, file: UploadFile) -> Docs:
     file_id = str(uuid.uuid4())
-    name, ext = os.path.splitext(file.filename)
-    object_key = f'{file_id}{ext}'
+    # name, ext = os.path.splitext(file.filename)
+    # object_key = f'{file_id}{ext}'
+    object_key = f'{file_id}.pdf'
 
     try:
         file.file.seek(0)
         s3.upload_fileobj(file.file, BUCKET, object_key)
     except Exception as e:
         print('err', e)
-        raise HTTPException(status_code=500, detail=f'S3 upload failed: {e}')
+        raise HTTPException(status_code=500, detail=f'S3 failed to get: {e}')
 
     url = f'http://127.0.0.1:9090/browser/pdf-docs/{object_key}'
     doc = Docs(id=file_id, created_by=1, file_name=file.filename, file_path=url)
@@ -77,16 +78,22 @@ def get_documents(
 @router.get('/{document_id}')
 def get_document(document_id: str, session: SessionDep):
     # async def get_file(filename: str):
+    document = session.get(Docs, document_id)
+
+    if not document:
+        raise HTTPException(status_code=404, detail='Document not found')
+
     try:
-        data = s3.get_object(BUCKET, document_id)
+        obj = s3.get_object(Bucket=BUCKET, Key=f'{document_id}.pdf')
+
     except Exception as e:
         raise HTTPException(status_code=404, detail=f'File not found: {e}')
 
     # We’ll stream the object back
     return StreamingResponse(
-        data,
+        obj['Body'],  # the file-like object
         media_type='application/pdf',
-        headers={'Content-Disposition': f'inline; filename="{document_id}"'},
+        headers={'Content-Disposition': f'inline; filename="{document_id}.pdf"'},
     )
 
 
