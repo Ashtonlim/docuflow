@@ -1,12 +1,39 @@
-import { createSlice } from '@reduxjs/toolkit'
+import config from '@/config'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
   name: '',
   size: '',
   type: '',
   pages: 0,
-  savedCoords: {},
+  status: 'idle',
+  err: null,
+  bounding_boxes: [],
+  goto: '',
 }
+
+export const uploadPDF = createAsyncThunk(
+  'docs/uploadDoc',
+  async (file, thunkApi) => {
+    console.log('trying to upload pdf', file, thunkApi)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const endpoint = `${config.API_URL}/documents`
+      console.log('sending to', endpoint)
+      const res = await fetch(endpoint, {
+        method: 'post',
+        body: formData,
+      })
+      const data = await res.json()
+      console.log('calling async, res= ', data)
+      return data
+    } catch (e) {
+      console.log('catch part of uploadpdf', e)
+      return thunkApi.rejectWithValue(e)
+    }
+  },
+)
 
 export const pdfSlice = createSlice({
   name: 'pdf',
@@ -18,40 +45,41 @@ export const pdfSlice = createSlice({
       state.name = name
       state.size = size
       state.type = type
-
-      for (let i = 1; i <= state.pages; i++) {
-        state.savedCoords[i] = []
-      }
     },
 
-    addCoordToPage: (state, action) => {
-      const { pageNumber, coord } = action.payload
-      state.savedCoords[pageNumber].push(coord)
+    addBoundingBox: (state, action) => {
+      state.bounding_boxes.push(action.payload)
     },
     delCoordFromPage: (state, action) => {
       console.log('delCoordFromPage', state, action)
-      const { pageNumber, id } = action.payload
-      state.savedCoords[pageNumber] = state.savedCoords[pageNumber].filter(
-        (cur) => cur.id !== id,
+      state.bounding_boxes = state.bounding_boxes.filter(
+        (cur) => cur.id !== action.payload,
       )
     },
     updateLabel: (state, action) => {
       console.log('updateLabel', state, action)
-      const { value, pageNumber, id } = action.payload
+      const { value, id } = action.payload
 
-      const itemToUpdate = state.savedCoords[pageNumber].find(
-        (coord) => coord.id === id,
-      )
+      const itemToUpdate = state.bounding_boxes.find((coord) => coord.id === id)
       if (itemToUpdate) {
-        itemToUpdate.label = value // Immer handles immutability
+        itemToUpdate.label = value
         console.log('update', itemToUpdate)
       }
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(uploadPDF.pending, (state, action) => {})
+      .addCase(uploadPDF.fulfilled, (state, action) => {
+        console.log('from fulfilled', action.payload)
+        state.goto = action.payload.id
+      })
+      .addCase(uploadPDF.rejected, (state, action) => {})
+  },
 })
 
 // Action creators are generated for each case reducer function
-export const { initFile, addCoordToPage, delCoordFromPage, updateLabel } =
+export const { initFile, addBoundingBox, delCoordFromPage, updateLabel } =
   pdfSlice.actions
 
 export default pdfSlice.reducer

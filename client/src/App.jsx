@@ -1,17 +1,29 @@
 import About from '@/pages/About/About.jsx'
 import Home from '@/pages/Home/Home.jsx'
 import Resources from '@/pages/Resources/Resources.jsx'
+import TemplateManager from '@/pages/TemplateManager/TemplateManager.jsx'
+import Templates from '@/pages/Templates/Templates.jsx'
 import { BrowserRouter, Route, Routes } from 'react-router'
 
 import config from '@/config.js'
+import { pdfjs } from 'react-pdf'
+import 'react-pdf/dist/Page/AnnotationLayer.css'
+import 'react-pdf/dist/Page/TextLayer.css'
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.mjs',
+  import.meta.url,
+).toString()
 
 const App = () => {
   return (
     <BrowserRouter basename={config.BASE_PATH}>
       <Routes>
-        <Route index element={<Home />}></Route>
-        <Route path='about' element={<About />}></Route>
-        <Route path='resources' element={<Resources />}></Route>
+        <Route index element={<Home />} />
+        <Route path='about' element={<About />} />
+        <Route path='resources' element={<Resources />} />
+        <Route path='templates/:id' element={<TemplateManager />} />
+        <Route path='templates' element={<Templates />} />
 
         {/* Catch-all route for undefined paths */}
         {/* <Route path='*' element={<Navigate to='/' replace />} /> */}

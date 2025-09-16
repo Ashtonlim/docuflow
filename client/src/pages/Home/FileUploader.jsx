@@ -1,6 +1,6 @@
 const FileUploader = ({ onFileChange }) => {
   return (
-    <div>
+    <div className='ruCol mt-4'>
       <label htmlFor='extractpdf'>Upload PDF to extract from</label>
       <input
         // aria-label='Upload PDF File'
