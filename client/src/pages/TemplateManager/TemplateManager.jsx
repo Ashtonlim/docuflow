@@ -2,6 +2,7 @@ import LayoutOne from '@/components/LayoutOne'
 import config from '@/config'
 import { useEffect, useState } from 'react'
 import { Document } from 'react-pdf'
+import { useCreateTemplateMutation } from '@/features/template/templateSlice'
 
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router'
@@ -17,12 +18,14 @@ const options = {
 // const loc = useLocation()
 export default function TemplateManager() {
   const pdf = useSelector((state) => state.pdf)
-  const dispatch = useDispatch()
+  const [createTemplate, { isLoading, isUpdating }] =
+    useCreateTemplateMutation()
+
   const { id } = useParams()
 
-  const [file, setFile] = useState(null)
   const [pages, setPages] = useState(null)
   const [pdfUrl, setPdfUrl] = useState(null)
+  const [templateName, setTemplateName] = useState('')
 
   useEffect(() => {
     const getFile = async () => {
@@ -31,30 +34,30 @@ export default function TemplateManager() {
         console.error('failed to get file', res)
       }
       const blob = await res.blob()
-      const file = new File([blob], `${id}.pdf`, { type: blob.type })
-      console.log(file)
-      setFile(file)
-
-      // const res = await fetch(
-      //   `http://localhost:8000/documents/${id}`,
-      // )
-      // const blob = await res.blob()
-      // const url = URL.createObjectURL(blob)
-      // setPdfUrl(url)
-
-      return () => {
-        if (pdfUrl) URL.revokeObjectURL(pdfUrl)
-      }
+      // NOTE: Passing a raw fetch Blob or File to react-pdf can fail on route navigation
+      // because PDF.js worker may try to read the stream before the Blob is fully realized.
+      // Using URL.createObjectURL(blob) creates a stable object URL that PDF.js can reliably fetch,
+      // ensuring consistent rendering across navigation and remounts.
+      const url = URL.createObjectURL(blob)
+      setPdfUrl(url)
     }
     getFile()
   }, [])
 
   const onDocumentLoadSuccess = ({ numPages }) => {
-    console.log('loaded okay', numPages)
     setPages(numPages)
   }
+
+  // console.log(pdf.bounding_boxes)
   const handleCreateTemplate = () => {
-    return
+    const payload = {
+      file_id: id,
+      created_by: 1,
+      name: templateName,
+      bounding_boxes: pdf.bounding_boxes,
+      description: 'test',
+    }
+    createTemplate(payload)
   }
 
   return (
@@ -67,7 +70,29 @@ export default function TemplateManager() {
             Save this template to be used on other PDFs.
           </div>
 
-          {file && (
+          <fieldset className='fieldset'>
+            <legend className='fieldset-legend'>Template Name</legend>
+            <input
+              onChange={(e) => setTemplateName(e.target.value)}
+              value={templateName}
+              type='text'
+              className='input'
+              placeholder='Give your template a name'
+            />
+            {/* <p className='label'>Optional</p> */}
+          </fieldset>
+
+          {/* <label htmlFor='templateName'>Template Name</label>
+          <input
+            // aria-label='Upload PDF File'
+            onChange={(e) => setTemplateName(e.target.value)}
+            value={templateName}
+            type='text'
+            id='templateName'
+            name='templateName'
+          /> */}
+
+          {pdfUrl && (
             <button
               onClick={handleCreateTemplate}
               className='btn btn-soft mt-3'
@@ -77,19 +102,19 @@ export default function TemplateManager() {
           )}
         </div>
         <div className='pdfviewer__container'>
-          {file && (
+          {pdfUrl && (
             <div className='pdfviewer__container__document'>
               <Document
-                key={file}
-                file={file}
+                key={pdfUrl}
+                file={pdfUrl}
                 onLoadSuccess={onDocumentLoadSuccess}
                 options={options}
               >
                 {pages
                   ? [...Array(pages).keys()].map((pageNumber) => (
                       <div key={`pg_${pageNumber + 1}`} className='ruRow'>
-                        <PDFPage pageNumber={pageNumber + 1} />
-                        <SelectedFields pageNumber={pageNumber + 1} />
+                        <PDFPage page_number={pageNumber + 1} />
+                        <SelectedFields page_number={pageNumber + 1} />
                       </div>
                     ))
                   : 0}

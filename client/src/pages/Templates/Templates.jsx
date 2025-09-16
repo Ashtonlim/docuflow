@@ -1,33 +1,43 @@
 import LayoutOne from '@/components/LayoutOne'
 import {
+  useGetTemplatesQuery,
   useDeleteDocMutation,
   useGetDocsQuery,
 } from '@/features/template/templateSlice'
-import { useDispatch } from 'react-redux'
 import { Link } from 'react-router'
 const Templates = () => {
   // const pdf = useSelector((state) => state.pdf)
-  const dispatch = useDispatch()
-  const { data, error, isLoading } = useGetDocsQuery()
+  // const { data, error, isLoading } = useGetTemplatesQuery()
+  // const { data, error, isLoading } = useGetDocsQuery()
 
-  // useEffect(() => {
-  //   const init = async () => {
-  //     dispatch()
-  //   }
+  const {
+    data: templates,
+    error: templatesError,
+    isLoading: templatesLoading,
+  } = useGetTemplatesQuery()
 
-  //   return () => {
-  //     second
-  //   }
-  // }, [third])
-  console.log(data, isLoading)
+  const {
+    data: docs,
+    error: docsError,
+    isLoading: docsLoading,
+  } = useGetDocsQuery()
+
+  // console.log(data, isLoading)
 
   return (
     <LayoutOne>
       <div className='rounded-box border-base-content/5 bg-base-100 overflow-x-auto border'>
-        {isLoading ? (
+        <div className='mb-5'>
+          {templatesLoading ? (
+            <span className='loading loading-spinner loading-xs'></span>
+          ) : (
+            <TemplatesTable data={templates} />
+          )}
+        </div>
+        {docsLoading ? (
           <span className='loading loading-spinner loading-xs'></span>
         ) : (
-          <TemplatesTable data={data} />
+          <TemplatesTable data={docs} />
         )}
       </div>
     </LayoutOne>
@@ -46,25 +56,28 @@ const TemplatesTable = ({ data }) => {
       <thead>
         <tr>
           <th></th>
-          <th>Name</th>
           <th>ID</th>
+          <th>Name</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         {data
-          ? data.map((docData, i) => (
-              <tr key={docData.id}>
-                <th>{i}</th>
-                <td>{docData.file_name}</td>
-                <td>{docData.id}</td>
+          ? data.map((item, i) => (
+              <tr key={item.id}>
+                <th>{i + 1}</th>
+                <td>{item.id}</td>
+                <td>{item.file_name}</td>
                 <td>
-                  <Link to={`/templates/${docData.id}`}>
-                    <button className='btn'>Edit</button>
+                  <Link to={`/templates/${item.pdf_id}`}>
+                    <button className='btn'>Edit Template</button>
                   </Link>
+                  {/* <Link to={`/templates/${item.pdf_id}`}> */}
+                  <button className='btn btn-neutral ml-2'>Extract</button>
+                  {/* </Link> */}
                   <button
-                    className='btn ml-2'
-                    onClick={() => handleDelete(docData.id)}
+                    className='btn btn-error ml-2'
+                    onClick={() => handleDelete(item.id)}
                   >
                     Delete
                   </button>

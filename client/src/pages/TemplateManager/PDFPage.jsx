@@ -4,7 +4,7 @@ import { Page } from 'react-pdf'
 import { useDispatch, useSelector } from 'react-redux'
 import SelectionBox from './SelectionBox'
 
-const PDFPage = ({ pageNumber }) => {
+const PDFPage = ({ page_number }) => {
   const dispatch = useDispatch()
   const pdf = useSelector((state) => state.pdf)
 
@@ -17,9 +17,9 @@ const PDFPage = ({ pageNumber }) => {
   const renderedCoords = useMemo(
     () =>
       pdf.bounding_boxes
-        ?.filter((c) => c.pageNumber === pageNumber)
+        ?.filter((c) => c.page_number === page_number)
         ?.map((coords) => <SelectionBox key={coords.id} coords={coords} />),
-    [pdf.bounding_boxes, pageNumber],
+    [pdf.bounding_boxes, page_number],
   )
 
   const getDOMxy = (e) => {
@@ -68,10 +68,10 @@ const PDFPage = ({ pageNumber }) => {
       domY: startDomY / page.height,
       width: Math.abs(domStart[0] - domX) / page.width,
       height: Math.abs(domStart[1] - domY) / page.height,
-      pageNumber,
+      page_number,
       pageWidth: page.width,
       pageHeight: page.height,
-      label: 'label name',
+      label_name: 'label name',
       words: [],
     }
 
@@ -107,7 +107,7 @@ const PDFPage = ({ pageNumber }) => {
 
   return (
     <div className='relative mt-3 inline-block'>
-      <Page pageNumber={pageNumber} onLoadSuccess={onPageLoadSuccess} />
+      <Page pageNumber={page_number} onLoadSuccess={onPageLoadSuccess} />
       <div
         className='overlay absolute top-0 left-0 z-10 h-full w-full cursor-crosshair'
         onMouseDown={handleMouseDown}

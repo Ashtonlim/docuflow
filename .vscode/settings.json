@@ -30,9 +30,9 @@
     "notebook.source.fixAll": "explicit",
     "notebook.source.organizeImports": "explicit"
   },
-  "editor.codeActionsOnSave": {
-    "source.organizeImports": "explicit"
-  },
+  // "editor.codeActionsOnSave": {
+  //   "source.organizeImports": "explicit"
+  // },
   "editor.formatOnSave": true,
   "sqltools.connections": [
     {

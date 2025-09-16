@@ -8,6 +8,16 @@ export const docsApi = createApi({
   }),
   endpoints: (build) => ({
     getDocs: build.query({ query: () => '/documents' }),
+    getTemplates: build.query({ query: () => '/templates/basic' }),
+    createTemplate: build.mutation({
+      query: (body) => {
+        return {
+          url: `/templates`,
+          method: 'POST',
+          body,
+        }
+      },
+    }),
     deleteDoc: build.mutation({
       query: (id) => {
         return {
@@ -19,4 +29,9 @@ export const docsApi = createApi({
   }),
 })
 
-export const { useGetDocsQuery, useDeleteDocMutation } = docsApi
+export const {
+  useGetDocsQuery,
+  useGetTemplatesQuery,
+  useDeleteDocMutation,
+  useCreateTemplateMutation,
+} = docsApi

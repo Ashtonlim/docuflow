@@ -8,8 +8,6 @@ const navLinks = {
   Home: '/',
   About: '/about',
   Templates: '/templates',
-  'HSK 2': '/hsk-2',
-  'HSK 3': '/hsk-3',
 }
 
 const HamburgerIcon = () => (
