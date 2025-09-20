@@ -7,8 +7,6 @@ import {
 import { Link } from 'react-router'
 const Templates = () => {
   // const pdf = useSelector((state) => state.pdf)
-  // const { data, error, isLoading } = useGetTemplatesQuery()
-  // const { data, error, isLoading } = useGetDocsQuery()
 
   const {
     data: templates,
@@ -22,7 +20,7 @@ const Templates = () => {
     isLoading: docsLoading,
   } = useGetDocsQuery()
 
-  // console.log(data, isLoading)
+  // (data, isLoading)
 
   return (
     <LayoutOne>
@@ -46,7 +44,6 @@ const Templates = () => {
 
 const TemplatesTable = ({ data }) => {
   const [del, { isLoading, isUpdating }] = useDeleteDocMutation()
-  console.log(isLoading, isUpdating, del, data)
   const handleDelete = (id) => {
     del(id)
   }
@@ -72,9 +69,9 @@ const TemplatesTable = ({ data }) => {
                   <Link to={`/templates/${item.pdf_id}`}>
                     <button className='btn'>Edit Template</button>
                   </Link>
-                  {/* <Link to={`/templates/${item.pdf_id}`}> */}
-                  <button className='btn btn-neutral ml-2'>Extract</button>
-                  {/* </Link> */}
+                  <Link to={`/templates/extract/${item.pdf_id}`}>
+                    <button className='btn btn-neutral ml-2'>Extract</button>
+                  </Link>
                   <button
                     className='btn btn-error ml-2'
                     onClick={() => handleDelete(item.id)}

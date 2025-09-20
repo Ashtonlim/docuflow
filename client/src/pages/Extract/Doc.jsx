@@ -9,12 +9,6 @@ import { useParams } from 'react-router'
 import PDFPage from './PDFPage'
 import SelectedFields from './SelectedFields'
 
-const options = {
-  cMapUrl: '/cmaps/',
-  standardFontDataUrl: '/standard_fonts/',
-  wasmUrl: '/wasm/',
-}
-
 // const loc = useLocation()
 export default function TemplateManager() {
   const pdf = useSelector((state) => state.pdf)
@@ -62,33 +56,6 @@ export default function TemplateManager() {
   return (
     <LayoutOne>
       <div className='pdfviewer'>
-        <div className='ruCol'>
-          <h4>Create Template </h4>
-          <div>
-            Select areas of your PDF you wish to automate extracting text from.
-            Save this template to be used on other PDFs.
-          </div>
-
-          <fieldset className='fieldset'>
-            <legend className='fieldset-legend'>Template Name</legend>
-            <input
-              onChange={(e) => setTemplateName(e.target.value)}
-              value={templateName}
-              type='text'
-              className='input'
-              placeholder='Give your template a name'
-            />
-          </fieldset>
-
-          {pdfUrl && (
-            <button
-              onClick={handleCreateTemplate}
-              className='btn btn-soft mt-3'
-            >
-              Save Template
-            </button>
-          )}
-        </div>
         <div className='pdfviewer__container'>
           {pdfUrl && (
             <div className='pdfviewer__container__document'>

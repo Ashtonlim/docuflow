@@ -13,7 +13,6 @@ export default function Home() {
 
   const onFileChange = (event) => {
     const nextFile = event.target?.files?.[0]
-    console.log('found file', nextFile, pdf)
     if (nextFile) {
       setFile(nextFile)
     }
@@ -21,26 +20,23 @@ export default function Home() {
     dispatch(uploadPDF(nextFile))
       .unwrap()
       .then((res) => {
-        console.log('from home', res)
         navigate(`/templates/${res.id}`)
       })
       .catch((err) => {
-        console.log(err)
+        throw new Error(err)
       })
   }
 
   return (
     <LayoutOne>
-      <div className='pdfviewer'>
-        <div className='ruCol'>
-          <h4>Create Template to Extract Fields from PDFs </h4>
-          <div>
-            Select areas of your PDF you wish to automate extracting text from.
-            Save this template to be used on other PDFs.
-          </div>
-
-          {file === null && <FileUploader onFileChange={onFileChange} />}
+      <div className='ruCol'>
+        <h4>Create Template to Extract Fields from PDFs </h4>
+        <div>
+          Select areas of your PDF you wish to automate extracting text from.
+          Save this template to be used on other PDFs.
         </div>
+
+        {file === null && <FileUploader onFileChange={onFileChange} />}
       </div>
     </LayoutOne>
   )

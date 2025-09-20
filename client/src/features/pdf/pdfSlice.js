@@ -15,21 +15,17 @@ const initialState = {
 export const uploadPDF = createAsyncThunk(
   'docs/uploadDoc',
   async (file, thunkApi) => {
-    console.log('trying to upload pdf', file, thunkApi)
     try {
       const formData = new FormData()
       formData.append('file', file)
       const endpoint = `${config.API_URL}/documents`
-      console.log('sending to', endpoint)
       const res = await fetch(endpoint, {
         method: 'post',
         body: formData,
       })
       const data = await res.json()
-      console.log('calling async, res= ', data)
       return data
     } catch (e) {
-      console.log('catch part of uploadpdf', e)
       return thunkApi.rejectWithValue(e)
     }
   },
@@ -47,23 +43,30 @@ export const pdfSlice = createSlice({
       state.type = type
     },
 
+    reInitFile: (state, action) => {
+      console.log('new file', action.payload)
+      const { name, size, type, bounding_boxes, pdf_id } = action.payload
+      state.name = name
+      state.size = size
+      state.type = type
+      state.bounding_boxes = bounding_boxes
+      state.pdf_id = pdf_id
+    },
+
     addBoundingBox: (state, action) => {
       state.bounding_boxes.push(action.payload)
     },
     delCoordFromPage: (state, action) => {
-      console.log('delCoordFromPage', state, action)
       state.bounding_boxes = state.bounding_boxes.filter(
         (cur) => cur.id !== action.payload,
       )
     },
     updateLabel: (state, action) => {
-      console.log('updateLabel', state, action)
       const { value, id } = action.payload
 
       const itemToUpdate = state.bounding_boxes.find((coord) => coord.id === id)
       if (itemToUpdate) {
         itemToUpdate.label = value
-        console.log('update', itemToUpdate)
       }
     },
   },
@@ -71,7 +74,6 @@ export const pdfSlice = createSlice({
     builder
       .addCase(uploadPDF.pending, (state, action) => {})
       .addCase(uploadPDF.fulfilled, (state, action) => {
-        console.log('from fulfilled', action.payload)
         state.goto = action.payload.id
       })
       .addCase(uploadPDF.rejected, (state, action) => {})
@@ -79,7 +81,12 @@ export const pdfSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { initFile, addBoundingBox, delCoordFromPage, updateLabel } =
-  pdfSlice.actions
+export const {
+  initFile,
+  addBoundingBox,
+  delCoordFromPage,
+  updateLabel,
+  reInitFile,
+} = pdfSlice.actions
 
 export default pdfSlice.reducer

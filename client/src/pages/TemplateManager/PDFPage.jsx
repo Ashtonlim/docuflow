@@ -4,6 +4,28 @@ import { Page } from 'react-pdf'
 import { useDispatch, useSelector } from 'react-redux'
 import SelectionBox from './SelectionBox'
 
+const getWordsInAreaFromPage = (area, pageData) => {
+  // pdfX,Y should always be top left of area in PDF coordinates (y inversed)
+  // btmx and btmy are bottom right of area
+  const { pdfX: startX, pdfY: startY, btmx: endX, btmy: endY } = area
+  const { pagetext, width, height } = pageData
+
+  return pagetext
+    .filter((word) => {
+      let pdfBtmLeftX = word.transform[4] / width
+      let pdfBtmLeftY = word.transform[5] / height
+
+      // word starting pos inside area
+      let xInArea = startX <= pdfBtmLeftX && pdfBtmLeftX <= endX
+
+      // opposite directions as pdf reads yAxis from bottom to left. i.e. Bottom = 0px, top = heightOfPdf
+      let yInArea = startY >= pdfBtmLeftY && pdfBtmLeftY >= endY
+
+      return xInArea && yInArea
+    })
+    .map((word) => (word.str == '' ? ' ' : word.str))
+}
+
 const PDFPage = ({ page_number }) => {
   const dispatch = useDispatch()
   const pdf = useSelector((state) => state.pdf)
@@ -23,8 +45,9 @@ const PDFPage = ({ page_number }) => {
   )
 
   const getDOMxy = (e) => {
-    // use currentTarget: is the element that the event listener is attached to.
-    // instead of target bc: is the element that triggered the event (e.g., the user clicked on)
+    // domX and Y should be relative to the boundary of the overlay
+    // react.left and top is top left point of the overlay relative to entire html
+    // clientX and Y are points relative to entire html
 
     const rect = e.currentTarget.getBoundingClientRect()
     const domX = e.clientX - rect.left
@@ -33,6 +56,11 @@ const PDFPage = ({ page_number }) => {
   }
 
   const handleMouseDown = (e) => {
+    // e.target vs e.currentTarget
+    // e.target: is element that ORIGINALLY triggered the even. COULD be parent or nested element
+    // e.currentTarget: is element that the event listener is attached to
+
+    // only want even to trigger when clicking on base element, not on some overlay or sibling element that's currently over target
     if (e.target === e.currentTarget) {
       const xy = getDOMxy(e)
       setdomEnd(xy)
@@ -42,10 +70,8 @@ const PDFPage = ({ page_number }) => {
   }
 
   const handleMouseMove = (e) => {
-    if (isSelecting) {
-      setdomEnd(getDOMxy(e))
-      return
-    }
+    // don't run if mouseDown wasn't valid
+    return isSelecting ? setdomEnd(getDOMxy) : null
   }
 
   const handleMouseUp = (e) => {
@@ -74,26 +100,11 @@ const PDFPage = ({ page_number }) => {
       label_name: 'label name',
       words: [],
     }
-
     // w and h = diff between 2 clicked points
-    const btmx = coord.pdfX + coord.width
-    const btmy = coord.pdfY - coord.height
+    coord.btmx = coord.pdfX + coord.width
+    coord.btmy = coord.pdfY - coord.height
 
-    // console.log(
-    //   `mouse up: clientX = ${e.clientX}, clientY = ${e.clientY}, coords = ${coord}`,
-    // )
-
-    const text = page.pagetext
-    //  find words inside coordinates
-    for (let i = 0; i < text.length; i++) {
-      let wx = text[i].transform[4] / page.width
-      let wy = text[i].transform[5] / page.height
-
-      if (wx >= coord.pdfX && wx <= btmx && wy <= coord.pdfY && wy >= btmy) {
-        coord.words.push(text[i].str == '' ? ' ' : text[i].str)
-      }
-    }
-
+    coord.words = getWordsInAreaFromPage(coord, page)
     coord.id = `${coord.pdfX},${coord.pdfY},${coord.width},${coord.height}`
     coord.wordAsStr = coord.words.join('')
 

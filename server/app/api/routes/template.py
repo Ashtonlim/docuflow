@@ -105,14 +105,8 @@ def create_template(session: SessionDep, data: CreateTemplate) -> Any:
 
 @router.get('/{file_id}')
 def get_templates_by_id(file_id: str, session: SessionDep):
-    res = session.exec(select(Templates).where(Templates.pdf_id == file_id))
+    res = session.exec(select(Templates).where(Templates.pdf_id == file_id)).one()
+    # res = session.get(Templates, file_id)
     print(f'{res=}')
 
     return res
-
-
-# def get_templates_without_boxes(file_id: str, session: SessionDep):
-#     res = session.exec(select(TemplateBasic).where(TemplateBasic.pdf_id == file_id))
-#     print(f'{res=}')
-
-#     return res
