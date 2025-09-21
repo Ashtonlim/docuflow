@@ -5,9 +5,11 @@ import FileUploader from './FileUploader'
 import { useParams } from 'react-router'
 import { useGetTemplateQuery } from '@/features/template/templateSlice'
 import { reInitFile } from '@/features/pdf/pdfSlice'
-import PDFPage from './PDFPage'
+import PdfPage from '@/components/PdfPage'
+import PdfOverlay from '@/components/PdfOverlay'
 import { Document } from 'react-pdf'
-import SelectedFields from './SelectedFields'
+import SelectedWordsList from '@/components/SelectedWordsList'
+
 const options = {
   cMapUrl: '/cmaps/',
   standardFontDataUrl: '/standard_fonts/',
@@ -56,7 +58,7 @@ export default function Extract() {
             {file && (
               <div className='pdfviewer__container__document'>
                 <Document
-                  // key={file}
+                  key={file}
                   file={file}
                   onLoadSuccess={onDocumentLoadSuccess}
                   options={options}
@@ -64,8 +66,11 @@ export default function Extract() {
                   {pages
                     ? [...Array(pages).keys()].map((pageNumber) => (
                         <div key={`pg_${pageNumber + 1}`} className='ruRow'>
-                          <PDFPage page_number={pageNumber + 1} />
-                          <SelectedFields page_number={pageNumber + 1} />
+                          <div className='relative mt-3 inline-block'>
+                            <PdfPage page_number={pageNumber + 1} />
+                            <PdfOverlay page_number={pageNumber + 1} />
+                          </div>
+                          <SelectedWordsList page_number={pageNumber + 1} />
                         </div>
                       ))
                     : 0}
