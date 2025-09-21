@@ -15,6 +15,7 @@ const SelectedWordsList = ({ page_number }) => {
           let text = ''
           if (!selectedWords) {
             text = getWordsInAreaFromPage(box, pdf.pages[page_number])
+            console.log('selectedWords', text)
           }
 
           return (

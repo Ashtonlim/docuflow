@@ -1,7 +1,11 @@
 export const getWordsInAreaFromPage = (area, pageData) => {
   // pdfX,Y should always be top left of area in PDF coordinates (y inversed)
   // btmx and btmy are bottom right of area
-  const { pdfX: startX, pdfY: startY, btmx: endX, btmy: endY } = area
+  const { pdfX: startX, pdfY: startY } = area
+
+  // get ending x, y position of selection
+  const endX = startX + area.width
+  const endY = startY - area.height
 
   // might not exist if page being loaded in
   if (!pageData) {

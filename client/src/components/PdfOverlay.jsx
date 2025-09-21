@@ -80,14 +80,9 @@ const PdfOverlay = ({ page_number }) => {
 
     const coord = calcCoordinates(domStart, getDOMxy(e), pdf.pages[page_number])
     coord.page_number = page_number
-    // w and h = diff between 2 clicked points
-    coord.btmx = coord.pdfX + coord.width
-    coord.btmy = coord.pdfY - coord.height
 
     const text = getWordsInAreaFromPage(coord, pdf.pages[page_number])
     coord.selectedWords = text.join('')
-    console.info('these are the text', text, coord.selectedWords)
-
     coord.id = `${coord.pdfX},${coord.pdfY},${coord.width},${coord.height}`
 
     // dispatch(addText({ page_number, text }))
