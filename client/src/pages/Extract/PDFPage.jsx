@@ -25,7 +25,7 @@ const PDFPage = ({ page_number }) => {
     try {
       pagetext = (await pageElement.getTextContent()).items
     } catch (error) {
-      console.log('what is erro', error)
+      throw new Error(error)
     }
 
     setPage({ width: pageElement.width, height: pageElement.height, pagetext })

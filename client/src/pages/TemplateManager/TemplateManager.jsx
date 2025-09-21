@@ -3,7 +3,7 @@ import config from '@/config'
 import { useEffect, useState } from 'react'
 import { Document } from 'react-pdf'
 import { useCreateTemplateMutation } from '@/features/template/templateSlice'
-
+import { reInitFile } from '@/features/pdf/pdfSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router'
 import PDFPage from './PDFPage'
@@ -20,6 +20,7 @@ export default function TemplateManager() {
   const pdf = useSelector((state) => state.pdf)
   const [createTemplate, { isLoading, isUpdating }] =
     useCreateTemplateMutation()
+  const dispatch = useDispatch()
 
   const { id } = useParams()
 
@@ -41,6 +42,7 @@ export default function TemplateManager() {
       const url = URL.createObjectURL(blob)
       setPdfUrl(url)
     }
+    dispatch(reInitFile({ pdf_id: id }))
     getFile()
   }, [])
 

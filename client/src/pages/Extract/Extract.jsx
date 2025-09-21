@@ -25,7 +25,6 @@ export default function Extract() {
   const { data: template, isError, isLoading } = useGetTemplateQuery(id)
 
   useEffect(() => {
-    console.info(template)
     if (template) {
       dispatch(reInitFile(template))
     }

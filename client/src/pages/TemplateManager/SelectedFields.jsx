@@ -8,7 +8,7 @@ const SelectedFields = ({ page_number }) => {
     <div>
       {pdf.bounding_boxes
         .filter((bb) => bb.page_number === page_number)
-        .map(({ label, id, wordAsStr }, i) => (
+        .map(({ label, id, selectedWords }, i) => (
           <div key={id}>
             <div className='ml-5'>
               {i}:{' '}
@@ -25,7 +25,7 @@ const SelectedFields = ({ page_number }) => {
                   )
                 }
               />{' '}
-              - {wordAsStr || ''}
+              - {selectedWords || ''}
             </div>
           </div>
         ))}

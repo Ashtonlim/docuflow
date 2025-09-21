@@ -1,4 +1,4 @@
-import { addBoundingBox } from '@/features/pdf/pdfSlice'
+import { addBoundingBox, addPage, addText } from '@/features/pdf/pdfSlice'
 import { useMemo, useState } from 'react'
 import { Page } from 'react-pdf'
 import { useDispatch, useSelector } from 'react-redux'
@@ -8,10 +8,10 @@ const getWordsInAreaFromPage = (area, pageData) => {
   // pdfX,Y should always be top left of area in PDF coordinates (y inversed)
   // btmx and btmy are bottom right of area
   const { pdfX: startX, pdfY: startY, btmx: endX, btmy: endY } = area
-  const { pagetext, width, height } = pageData
+  const { words, width, height } = pageData
 
-  return pagetext
-    .filter((word) => {
+  return words
+    ?.filter((word) => {
       let pdfBtmLeftX = word.transform[4] / width
       let pdfBtmLeftY = word.transform[5] / height
 
@@ -23,14 +23,13 @@ const getWordsInAreaFromPage = (area, pageData) => {
 
       return xInArea && yInArea
     })
-    .map((word) => (word.str == '' ? ' ' : word.str))
+    ?.map((word) => (word.str == '' ? ' ' : word.str))
 }
 
 const PDFPage = ({ page_number }) => {
   const dispatch = useDispatch()
   const pdf = useSelector((state) => state.pdf)
 
-  const [page, setPage] = useState([])
   const [domStart, setdomStart] = useState([-1, -1])
   const [domEnd, setdomEnd] = useState([-1, -1])
   const [isSelecting, setIsSelecting] = useState(false)
@@ -40,7 +39,16 @@ const PDFPage = ({ page_number }) => {
     () =>
       pdf.bounding_boxes
         ?.filter((c) => c.page_number === page_number)
-        ?.map((coords) => <SelectionBox key={coords.id} coords={coords} />),
+        ?.map((coords) => (
+          <SelectionBox
+            key={coords.id}
+            page={{
+              width: pdf.pages[page_number].width,
+              height: pdf.pages[page_number].height,
+            }}
+            coords={coords}
+          />
+        )),
     [pdf.bounding_boxes, page_number],
   )
 
@@ -71,7 +79,29 @@ const PDFPage = ({ page_number }) => {
 
   const handleMouseMove = (e) => {
     // don't run if mouseDown wasn't valid
-    return isSelecting ? setdomEnd(getDOMxy) : null
+    return isSelecting ? setdomEnd(getDOMxy(e)) : null
+  }
+
+  // get top left point
+  // pdf y coordinates start from btm. pdfy = pdfHeight - YRelativeToPDF
+  const calcCoordinates = (domStart, domEnd, pageData) => {
+    const { width, height } = pageData
+    const [firstClickX, firstClickY] = domStart
+    const [lastClickX, lastClickY] = domEnd
+    const topLeftX = Math.min(firstClickX, lastClickX)
+    const topLeftY = Math.min(firstClickY, lastClickY)
+
+    // to convert domy into pdfy -> pdfHeight - domy (topLeftY)
+    // right at btm of page, if pdfHeight = 500, then domy = 500
+    // therefore pdfy = 500 - 500 = 0px
+    return {
+      domY: topLeftY / height,
+      pdfX: topLeftX / width,
+      pdfY: (height - topLeftY) / height,
+      width: Math.abs(firstClickX - lastClickX) / width,
+      height: Math.abs(firstClickY - lastClickY) / height,
+      label_name: 'label name',
+    }
   }
 
   const handleMouseUp = (e) => {
@@ -82,38 +112,42 @@ const PDFPage = ({ page_number }) => {
 
     setIsSelecting(false)
 
-    const rect = e.currentTarget.getBoundingClientRect()
-    const [domX, domY] = getDOMxy(e)
-    const startDomY = Math.min(domStart[1], domY)
+    const ele = e.currentTarget.getBoundingClientRect()
+    console.info(
+      'Compare page vs e.currentTarget height',
+      pdf.height,
+      ele.height,
+    )
 
-    // get top left point
-    // pdf y coordinates start from btm. pdfy = pdfHeight - YRelativeToPDF
-    const coord = {
-      pdfX: Math.min(domStart[0], domX) / page.width,
-      pdfY: (rect.height - startDomY) / page.height,
-      domY: startDomY / page.height,
-      width: Math.abs(domStart[0] - domX) / page.width,
-      height: Math.abs(domStart[1] - domY) / page.height,
-      page_number,
-      pageWidth: page.width,
-      pageHeight: page.height,
-      label_name: 'label name',
-      words: [],
-    }
+    const coord = calcCoordinates(domStart, getDOMxy(e), pdf.pages[page_number])
+    coord.page_number = page_number
     // w and h = diff between 2 clicked points
     coord.btmx = coord.pdfX + coord.width
     coord.btmy = coord.pdfY - coord.height
 
-    coord.words = getWordsInAreaFromPage(coord, page)
-    coord.id = `${coord.pdfX},${coord.pdfY},${coord.width},${coord.height}`
-    coord.wordAsStr = coord.words.join('')
+    const text = getWordsInAreaFromPage(coord, pdf.pages[page_number])
+    coord.selectedWords = text.join('')
+    console.info('these are the text', text, coord.selectedWords)
 
+    coord.id = `${coord.pdfX},${coord.pdfY},${coord.width},${coord.height}`
+
+    // dispatch(addText({ page_number, text }))
     dispatch(addBoundingBox(coord))
   }
 
   const onPageLoadSuccess = async (pageElement) => {
-    const pagetext = (await pageElement.getTextContent()).items
-    setPage({ width: pageElement.width, height: pageElement.height, pagetext })
+    const words = (await pageElement.getTextContent()).items
+    // setPage()
+    dispatch(
+      addPage({
+        page_number,
+        page: {
+          width: pageElement.width,
+          height: pageElement.height,
+          words,
+        },
+      }),
+    )
   }
 
   return (
@@ -130,14 +164,11 @@ const PDFPage = ({ page_number }) => {
         {isSelecting && (
           <SelectionBox
             canDelete={false}
-            coords={{
-              pdfX: Math.min(domStart[0], domEnd[0]) / page.width,
-              domY: Math.min(domStart[1], domEnd[1]) / page.height,
-              width: Math.abs(domStart[0] - domEnd[0]) / page.width,
-              height: Math.abs(domStart[1] - domEnd[1]) / page.height,
-              pageWidth: page.width,
-              pageHeight: page.height,
+            page={{
+              width: pdf.pages[page_number].width,
+              height: pdf.pages[page_number].height,
             }}
+            coords={calcCoordinates(domStart, domEnd, pdf.pages[page_number])}
           />
         )}
       </div>
@@ -146,18 +177,3 @@ const PDFPage = ({ page_number }) => {
 }
 
 export default PDFPage
-
-// style={{
-//   position: 'relative',
-//   display: 'inline-block',
-//   marginTop: 10,
-// }}
-//     style={{
-//     position: 'absolute',
-//     zIndex: 10,
-//     top: 0,
-//     left: 0,
-//     width: '100%',
-//     height: '100%',
-//     cursor: 'crosshair',
-//   }}
