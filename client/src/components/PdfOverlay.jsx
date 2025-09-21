@@ -5,7 +5,7 @@ import SelectionBox from '@/components/SelectionBox'
 
 import { getWordsInAreaFromPage, calcCoordinates } from '@/utils/pdfUtils'
 
-const PdfOverlay = ({ page_number }) => {
+const PdfOverlay = ({ page_number, editable = true }) => {
   const dispatch = useDispatch()
   const pdf = useSelector((state) => state.pdf)
 
@@ -21,6 +21,7 @@ const PdfOverlay = ({ page_number }) => {
             ?.filter((box) => box.page_number === page_number)
             ?.map((coords) => (
               <SelectionBox
+                canDelete={editable}
                 key={coords.id}
                 page={{
                   width: pdf.pages[page_number].width,
@@ -81,8 +82,7 @@ const PdfOverlay = ({ page_number }) => {
     const coord = calcCoordinates(domStart, getDOMxy(e), pdf.pages[page_number])
     coord.page_number = page_number
 
-    const text = getWordsInAreaFromPage(coord, pdf.pages[page_number])
-    coord.selectedWords = text.join('')
+    coord.selectedWords = getWordsInAreaFromPage(coord, pdf.pages[page_number])
     coord.id = `${coord.pdfX},${coord.pdfY},${coord.width},${coord.height}`
 
     // dispatch(addText({ page_number, text }))
@@ -99,7 +99,7 @@ const PdfOverlay = ({ page_number }) => {
     >
       {renderedCoords}
 
-      {isSelecting && (
+      {editable && isSelecting && (
         <SelectionBox
           canDelete={false}
           page={{

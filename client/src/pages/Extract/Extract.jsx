@@ -68,7 +68,10 @@ export default function Extract() {
                         <div key={`pg_${pageNumber + 1}`} className='ruRow'>
                           <div className='relative mt-3 inline-block'>
                             <PdfPage page_number={pageNumber + 1} />
-                            <PdfOverlay page_number={pageNumber + 1} />
+                            <PdfOverlay
+                              page_number={pageNumber + 1}
+                              editable={false}
+                            />
                           </div>
                           <SelectedWordsList page_number={pageNumber + 1} />
                         </div>

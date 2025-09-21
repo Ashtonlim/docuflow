@@ -27,6 +27,7 @@ export const getWordsInAreaFromPage = (area, pageData) => {
       return xInArea && yInArea
     })
     ?.map((word) => (word.str == '' ? ' ' : word.str))
+    .join('')
 }
 // get top left point
 // pdf y coordinates start from btm. pdfy = pdfHeight - YRelativeToPDF

@@ -1,6 +1,6 @@
 import { delCoordFromPage } from '@/features/pdf/pdfSlice'
 import { useDispatch } from 'react-redux'
-const SelectionBox = ({ coords, page, canDelete = true }) => {
+const SelectionBox = ({ coords, page, canDelete = false }) => {
   const dispatch = useDispatch()
   return (
     <div

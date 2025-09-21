@@ -6,17 +6,15 @@ const SelectedWordsList = ({ page_number }) => {
   const pdf = useSelector((state) => state.pdf)
   const dispatch = useDispatch()
 
+  console.log(pdf.pages[page_number])
   return pdf.pages[page_number] ? (
     <div>
       {pdf.bounding_boxes
         .filter((box) => box.page_number === page_number)
         .map((box, i) => {
           const { label, id, selectedWords } = box
-          let text = ''
-          if (!selectedWords) {
-            text = getWordsInAreaFromPage(box, pdf.pages[page_number])
-            console.log('selectedWords', text)
-          }
+          let text =
+            selectedWords || getWordsInAreaFromPage(box, pdf.pages[page_number])
 
           return (
             <div key={id}>
@@ -35,7 +33,7 @@ const SelectedWordsList = ({ page_number }) => {
                     )
                   }
                 />{' '}
-                - {selectedWords || text}
+                - {text}
               </div>
             </div>
           )
