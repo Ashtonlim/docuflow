@@ -1,13 +1,7 @@
-import { useEffect } from 'react'
+import { delCoordFromPage } from '@/features/pdf/pdfSlice'
 import { useDispatch } from 'react-redux'
-
-const SelectionBox = ({ coords, page }) => {
-  // useEffect(() => {
-  //   // console.log('SelectionBox', page)
-  // }, [page])
-
-  if (!page.width || !page.height) return <div></div>
-
+const SelectionBox = ({ coords, page, canDelete = false }) => {
+  const dispatch = useDispatch()
   return (
     <div
       className='absolute z-20'
@@ -24,7 +18,19 @@ const SelectionBox = ({ coords, page }) => {
         // pointerEvents: 'auto',
         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
       }}
-    ></div>
+    >
+      {canDelete && (
+        <button
+          className='absolute -top-3 -right-3 z-30 cursor-pointer rounded-full border border-gray-600 bg-white px-1 py-0 text-sm!'
+          onClick={(e) => {
+            e.stopPropagation()
+            dispatch(delCoordFromPage(coords.id))
+          }}
+        >
+          <span className='text-black'>✕</span>
+        </button>
+      )}
+    </div>
   )
 }
 

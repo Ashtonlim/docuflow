@@ -5,11 +5,9 @@ const initialState = {
   name: '',
   size: '',
   type: '',
-  pages: 0,
   status: 'idle',
-  err: null,
   bounding_boxes: [],
-  goto: '',
+  pages: {},
 }
 
 export const uploadPDF = createAsyncThunk(
@@ -42,15 +40,39 @@ export const pdfSlice = createSlice({
       state.size = size
       state.type = type
     },
+    resetFile: (state, action) => {
+      state = {
+        name: '',
+        size: '',
+        type: '',
+        status: 'idle',
+        bounding_boxes: [],
+        pages: {},
+      }
+    },
 
     reInitFile: (state, action) => {
       console.log('new file', action.payload)
-      const { name, size, type, bounding_boxes, pdf_id } = action.payload
-      state.name = name
-      state.size = size
-      state.type = type
-      state.bounding_boxes = bounding_boxes
-      state.pdf_id = pdf_id
+      // const { name, size, type, bounding_boxes, pdf_id }
+      const data = action.payload
+      state.name = data?.name || ''
+      state.size = data?.size || ''
+      state.type = data?.type || ''
+      state.bounding_boxes = data?.bounding_boxes || []
+      state.pdf_id = data?.pdf_id || ''
+    },
+    addText: (state, action) => {
+      // const { page_number, text } = action.payload
+      // if (!(page_number in state.pages)) {
+      //   return state
+      // }
+      // if (Array.isArray(state.pages[page_number].words)) {
+      //   state.pages[page_number].found_words.push(text)
+      // }
+    },
+    addPage: (state, action) => {
+      const { page_number, page } = action.payload
+      state.pages[page_number] = page
     },
 
     addBoundingBox: (state, action) => {
@@ -83,10 +105,13 @@ export const pdfSlice = createSlice({
 // Action creators are generated for each case reducer function
 export const {
   initFile,
+  resetFile,
+  reInitFile,
+  addPage,
+  addText,
   addBoundingBox,
   delCoordFromPage,
   updateLabel,
-  reInitFile,
 } = pdfSlice.actions
 
 export default pdfSlice.reducer
