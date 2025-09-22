@@ -11,7 +11,6 @@ function About() {
 
   useEffect(() => {
     prevName.current = name
-    console.log('hello from ue', prevName)
     // setcount2((p) => p + 1)
   }, [name])
 
@@ -19,9 +18,7 @@ function About() {
     setName(e.target.value)
     setcount((p) => p + 1)
   }
-  const update = () => {
-    console.log(prevName.current)
-  }
+  const update = () => {}
   return (
     <LayoutOne>
       <h1>About</h1>

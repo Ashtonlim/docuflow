@@ -9,6 +9,7 @@ export const docsApi = createApi({
   endpoints: (build) => ({
     getDocs: build.query({ query: () => '/documents' }),
     getTemplates: build.query({ query: () => '/templates/basic' }),
+    getTemplate: build.query({ query: (id) => `/templates/${id}` }),
     createTemplate: build.mutation({
       query: (body) => {
         return {
@@ -32,6 +33,7 @@ export const docsApi = createApi({
 export const {
   useGetDocsQuery,
   useGetTemplatesQuery,
+  useGetTemplateQuery,
   useDeleteDocMutation,
   useCreateTemplateMutation,
 } = docsApi

@@ -5,31 +5,25 @@ const initialState = {
   name: '',
   size: '',
   type: '',
-  pages: 0,
   status: 'idle',
-  err: null,
   bounding_boxes: [],
-  goto: '',
+  pages: {},
 }
 
 export const uploadPDF = createAsyncThunk(
   'docs/uploadDoc',
   async (file, thunkApi) => {
-    console.log('trying to upload pdf', file, thunkApi)
     try {
       const formData = new FormData()
       formData.append('file', file)
       const endpoint = `${config.API_URL}/documents`
-      console.log('sending to', endpoint)
       const res = await fetch(endpoint, {
         method: 'post',
         body: formData,
       })
       const data = await res.json()
-      console.log('calling async, res= ', data)
       return data
     } catch (e) {
-      console.log('catch part of uploadpdf', e)
       return thunkApi.rejectWithValue(e)
     }
   },
@@ -46,24 +40,55 @@ export const pdfSlice = createSlice({
       state.size = size
       state.type = type
     },
+    resetFile: (state, action) => {
+      state = {
+        name: '',
+        size: '',
+        type: '',
+        status: 'idle',
+        bounding_boxes: [],
+        pages: {},
+      }
+    },
+
+    reInitFile: (state, action) => {
+      console.log('new file', action.payload)
+      // const { name, size, type, bounding_boxes, pdf_id }
+      const data = action.payload
+      state.name = data?.name || ''
+      state.size = data?.size || ''
+      state.type = data?.type || ''
+      state.bounding_boxes = data?.bounding_boxes || []
+      state.pdf_id = data?.pdf_id || ''
+    },
+    addText: (state, action) => {
+      // const { page_number, text } = action.payload
+      // if (!(page_number in state.pages)) {
+      //   return state
+      // }
+      // if (Array.isArray(state.pages[page_number].words)) {
+      //   state.pages[page_number].found_words.push(text)
+      // }
+    },
+    addPage: (state, action) => {
+      const { page_number, page } = action.payload
+      state.pages[page_number] = page
+    },
 
     addBoundingBox: (state, action) => {
       state.bounding_boxes.push(action.payload)
     },
     delCoordFromPage: (state, action) => {
-      console.log('delCoordFromPage', state, action)
       state.bounding_boxes = state.bounding_boxes.filter(
         (cur) => cur.id !== action.payload,
       )
     },
     updateLabel: (state, action) => {
-      console.log('updateLabel', state, action)
       const { value, id } = action.payload
 
       const itemToUpdate = state.bounding_boxes.find((coord) => coord.id === id)
       if (itemToUpdate) {
         itemToUpdate.label = value
-        console.log('update', itemToUpdate)
       }
     },
   },
@@ -71,7 +96,6 @@ export const pdfSlice = createSlice({
     builder
       .addCase(uploadPDF.pending, (state, action) => {})
       .addCase(uploadPDF.fulfilled, (state, action) => {
-        console.log('from fulfilled', action.payload)
         state.goto = action.payload.id
       })
       .addCase(uploadPDF.rejected, (state, action) => {})
@@ -79,7 +103,15 @@ export const pdfSlice = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const { initFile, addBoundingBox, delCoordFromPage, updateLabel } =
-  pdfSlice.actions
+export const {
+  initFile,
+  resetFile,
+  reInitFile,
+  addPage,
+  addText,
+  addBoundingBox,
+  delCoordFromPage,
+  updateLabel,
+} = pdfSlice.actions
 
 export default pdfSlice.reducer

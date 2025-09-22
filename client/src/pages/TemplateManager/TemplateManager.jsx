@@ -3,11 +3,14 @@ import config from '@/config'
 import { useEffect, useState } from 'react'
 import { Document } from 'react-pdf'
 import { useCreateTemplateMutation } from '@/features/template/templateSlice'
-
+import { reInitFile } from '@/features/pdf/pdfSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router'
-import PDFPage from './PDFPage'
-import SelectedFields from './SelectedFields'
+import SelectedWordsList from '../../components/SelectedWordsList'
+import PdfOverlay from '@/components/PdfOverlay'
+import PdfPage from '@/components/PdfPage'
+
+import SaveTemplateForm from './SaveTemplateForm'
 
 const options = {
   cMapUrl: '/cmaps/',
@@ -20,7 +23,7 @@ export default function TemplateManager() {
   const pdf = useSelector((state) => state.pdf)
   const [createTemplate, { isLoading, isUpdating }] =
     useCreateTemplateMutation()
-
+  const dispatch = useDispatch()
   const { id } = useParams()
 
   const [pages, setPages] = useState(null)
@@ -41,6 +44,7 @@ export default function TemplateManager() {
       const url = URL.createObjectURL(blob)
       setPdfUrl(url)
     }
+    dispatch(reInitFile({ pdf_id: id }))
     getFile()
   }, [])
 
@@ -48,8 +52,7 @@ export default function TemplateManager() {
     setPages(numPages)
   }
 
-  // console.log(pdf.bounding_boxes)
-  const handleCreateTemplate = () => {
+  const handleSaveTemplate = () => {
     const payload = {
       file_id: id,
       created_by: 1,
@@ -70,35 +73,12 @@ export default function TemplateManager() {
             Save this template to be used on other PDFs.
           </div>
 
-          <fieldset className='fieldset'>
-            <legend className='fieldset-legend'>Template Name</legend>
-            <input
-              onChange={(e) => setTemplateName(e.target.value)}
-              value={templateName}
-              type='text'
-              className='input'
-              placeholder='Give your template a name'
-            />
-            {/* <p className='label'>Optional</p> */}
-          </fieldset>
-
-          {/* <label htmlFor='templateName'>Template Name</label>
-          <input
-            // aria-label='Upload PDF File'
-            onChange={(e) => setTemplateName(e.target.value)}
-            value={templateName}
-            type='text'
-            id='templateName'
-            name='templateName'
-          /> */}
-
           {pdfUrl && (
-            <button
-              onClick={handleCreateTemplate}
-              className='btn btn-soft mt-3'
-            >
-              Save Template
-            </button>
+            <SaveTemplateForm
+              templateName={templateName}
+              setTemplateName={setTemplateName}
+              handleSaveTemplate={handleSaveTemplate}
+            />
           )}
         </div>
         <div className='pdfviewer__container'>
@@ -113,8 +93,11 @@ export default function TemplateManager() {
                 {pages
                   ? [...Array(pages).keys()].map((pageNumber) => (
                       <div key={`pg_${pageNumber + 1}`} className='ruRow'>
-                        <PDFPage page_number={pageNumber + 1} />
-                        <SelectedFields page_number={pageNumber + 1} />
+                        <div className='relative mt-3 inline-block'>
+                          <PdfPage page_number={pageNumber + 1} />
+                          <PdfOverlay page_number={pageNumber + 1} />
+                        </div>
+                        <SelectedWordsList page_number={pageNumber + 1} />
                       </div>
                     ))
                   : 0}
