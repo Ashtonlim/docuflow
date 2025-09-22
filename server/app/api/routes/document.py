@@ -113,7 +113,6 @@ def delete_document(document_id: str, session: SessionDep):
     try:
         response = s3.delete_object(Bucket=BUCKET, Key=f'{document_id}.pdf')
         print(f"Object '{document_id}' deleted successfully from bucket '{BUCKET}'.")
-        print(response)
         session.delete(document)
         session.commit()
         session.refresh(document)

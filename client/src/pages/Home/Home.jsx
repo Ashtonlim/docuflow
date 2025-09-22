@@ -3,19 +3,15 @@ import { uploadPDF } from '@/features/pdf/pdfSlice'
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router'
-import FileUploader from './FileUploader'
+import FileUploader from '@/components/FileUploader'
 
 export default function Home() {
   const pdf = useSelector((state) => state.pdf)
   const dispatch = useDispatch()
-  const [file, setFile] = useState(null)
   const navigate = useNavigate()
 
   const onFileChange = (event) => {
     const nextFile = event.target?.files?.[0]
-    if (nextFile) {
-      setFile(nextFile)
-    }
 
     dispatch(uploadPDF(nextFile))
       .unwrap()
@@ -36,7 +32,10 @@ export default function Home() {
           Save this template to be used on other PDFs.
         </div>
 
-        {file === null && <FileUploader onFileChange={onFileChange} />}
+        <FileUploader
+          label='Upload PDF to extract from'
+          onFileChange={onFileChange}
+        />
       </div>
     </LayoutOne>
   )

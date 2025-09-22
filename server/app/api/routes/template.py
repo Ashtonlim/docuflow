@@ -77,11 +77,8 @@ def get_templates_without_boxes(
 @router.post('/')
 def create_template(session: SessionDep, data: CreateTemplate) -> Any:
     # check if pdf exists
-    print('creating template', data)
     # get all documents
 
-    # res = session.exec(select(Templates).where(Templates.created_by == 1))
-    # print(f'{res=}')
     try:
         template = Templates(
             pdf_id=data.file_id,
@@ -90,8 +87,6 @@ def create_template(session: SessionDep, data: CreateTemplate) -> Any:
             description=data.name,
             bounding_boxes=[dict(box) for box in data.bounding_boxes],
         )
-
-        print('is template correct?', template)
 
         session.add(template)
         session.commit()
@@ -107,6 +102,5 @@ def create_template(session: SessionDep, data: CreateTemplate) -> Any:
 def get_templates_by_id(file_id: str, session: SessionDep):
     res = session.exec(select(Templates).where(Templates.pdf_id == file_id)).one()
     # res = session.get(Templates, file_id)
-    print(f'{res=}')
 
     return res
