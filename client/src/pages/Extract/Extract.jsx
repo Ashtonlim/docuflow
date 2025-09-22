@@ -1,7 +1,7 @@
 import LayoutOne from '@/components/LayoutOne'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import FileUploader from './FileUploader'
+import FileUploader from '@/components/FileUploader'
 import { useParams } from 'react-router'
 import { useGetTemplateQuery } from '@/features/template/templateSlice'
 import { reInitFile } from '@/features/pdf/pdfSlice'
@@ -9,6 +9,7 @@ import PdfPage from '@/components/PdfPage'
 import PdfOverlay from '@/components/PdfOverlay'
 import { Document } from 'react-pdf'
 import SelectedWordsList from '@/components/SelectedWordsList'
+import Steps from '../../components/Steps'
 
 const options = {
   cMapUrl: '/cmaps/',
@@ -44,6 +45,7 @@ export default function Extract() {
   return (
     <LayoutOne>
       <div className='ruCol'>
+        <Steps at={0} />
         <h4>Extract Fields from PDF </h4>
         {template ? (
           <div>{`Number of fields:  ${template.bounding_boxes.length}`}</div>
@@ -51,7 +53,20 @@ export default function Extract() {
           ''
         )}
 
-        <FileUploader onFileChange={onFileChange} />
+        {!file ? (
+          <FileUploader
+            label='Upload PDF to extract from'
+            onFileChange={onFileChange}
+          />
+        ) : (
+          <div className='ruCol mt-4'>
+            <div>
+              Current Step: Verify the text extraction is correct to move on to
+            </div>
+
+            <button className='btn'>Extract and save fields</button>
+          </div>
+        )}
 
         <div className='pdfviewer'>
           <div className='pdfviewer__container'>
