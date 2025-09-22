@@ -1,7 +1,7 @@
-const FileUploader = ({ onFileChange }) => {
+const FileUploader = ({ onFileChange, label }) => {
   return (
     <div className='ruCol mt-4'>
-      <label htmlFor='extractpdf'>Upload PDF to extract from</label>
+      <label htmlFor='extractpdf'>{label}</label>
       <input
         // aria-label='Upload PDF File'
         onChange={onFileChange}

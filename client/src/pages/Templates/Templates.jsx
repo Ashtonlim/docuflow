@@ -76,7 +76,7 @@ const Templates = () => {
                       className='btn btn-error ml-2'
                       onClick={() => handleDelete(item.id)}
                     >
-                      Delete
+                      Delete All
                     </button>
                   </td>
                 </tr>

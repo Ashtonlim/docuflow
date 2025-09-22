@@ -89,13 +89,15 @@ const PdfOverlay = ({ page_number, editable = true }) => {
     dispatch(addBoundingBox(coord))
   }
 
+  const doNothing = () => {}
+
   /* page overlay to allow box selection */
   return (
     <div
-      className='overlay absolute top-0 left-0 z-10 h-full w-full cursor-crosshair'
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
+      className={`overlay absolute top-0 left-0 z-10 h-full w-full ${editable && 'cursor-crosshair'}`}
+      onMouseDown={editable ? handleMouseDown : doNothing}
+      onMouseMove={editable ? handleMouseMove : doNothing}
+      onMouseUp={editable ? handleMouseUp : doNothing}
     >
       {renderedCoords}
 
