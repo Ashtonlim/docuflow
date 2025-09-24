@@ -8,6 +8,9 @@
       "source.organizeImports": "explicit"
     }
   },
+  // "python.analysis.ignore": ["*"],
+  // "python.analysis.typeCheckingMode": "off",
+
   "ruff.configuration": {
     "lint": {
       "lint": {

@@ -1,4 +1,3 @@
-import os
 import uuid
 from typing import Annotated
 
@@ -11,8 +10,6 @@ from app.core.db import SessionDep
 
 # need to add users so fastapi is aware of tables
 from app.models import Docs, Users
-
-# from app.models.users import Users
 
 s3 = boto3.client(
     's3',
@@ -50,11 +47,11 @@ async def upload_document(session: SessionDep, file: UploadFile) -> Docs:
 
     try:
         session.add(doc)
-        session.commit()
-        session.refresh(doc)
+        await session.commit()
+        await session.refresh(doc)
     except Exception as e:
         print('err2', e)
-        session.rollback()
+        await session.rollback()
 
         # rollback step: delete object from S3
         s3.delete_object(Bucket=BUCKET, Key=object_key)
@@ -66,13 +63,13 @@ async def upload_document(session: SessionDep, file: UploadFile) -> Docs:
 
 
 @router.get('/')
-def get_documents(
+async def get_documents(
     session: SessionDep,
     offset: int = 0,
     limit: Annotated[int, Query(le=100)] = 100,
 ) -> list[Docs]:
-    documents = session.exec(select(Docs).offset(offset).limit(limit)).all()
-    return list(documents)
+    documents = await session.execute(select(Docs).offset(offset).limit(limit))
+    return list(documents.scalars().all())
 
 
 @router.get('/{document_id}')
@@ -106,18 +103,18 @@ def get_document_by_name(file_name: str, session: SessionDep):
 
 
 @router.delete('/{document_id}')
-def delete_document(document_id: str, session: SessionDep):
+async def delete_document(document_id: str, session: SessionDep):
     document = session.get(Docs, document_id)
 
     # Delete the object
     try:
         response = s3.delete_object(Bucket=BUCKET, Key=f'{document_id}.pdf')
         print(f"Object '{document_id}' deleted successfully from bucket '{BUCKET}'.")
-        session.delete(document)
-        session.commit()
-        session.refresh(document)
+        await session.delete(document)
+        await session.commit()
+        await session.refresh(document)
     except Exception as e:
-        session.rollback()
+        await session.rollback()
         print(f'Error deleting object: {e}')
         raise HTTPException(status_code=404, detail='Document not found')
 
