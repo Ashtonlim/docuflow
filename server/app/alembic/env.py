@@ -70,6 +70,10 @@ def run_migrations_offline() -> None:
 
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode."""
+
+    # according to chatgpt, alembic isn't compatible with the async engin
+    # so we create a sync engine to create the migrations.
+    # since this is done outside of runtime, doesn't matter that it's used here.
     connectable: Engine = create_engine(
         settings.DATABASE_URL.unicode_string(),
         poolclass=pool.NullPool,
