@@ -4,7 +4,7 @@ import {
   useDeleteDocMutation,
   useGetDocsQuery,
 } from '@/features/template/templateSlice'
-import { Link } from 'react-router'
+import Button from '../../components/Button'
 const Templates = () => {
   // const pdf = useSelector((state) => state.pdf)
 
@@ -30,7 +30,7 @@ const Templates = () => {
               <th></th>
               <th>ID</th>
               <th>Name</th>
-              <th>Actions</th>
+              <th className='w-4/15'>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -42,19 +42,20 @@ const Templates = () => {
                   <th>{i + 1}</th>
                   <td>{item.id}</td>
                   <td>{item.file_name}</td>
-                  <td>
-                    <Link to={`/templates/${item.pdf_id}`}>
-                      <button className='btn'>Edit Template</button>
-                    </Link>
-                    <Link to={`/templates/extract/${item.pdf_id}`}>
-                      <button className='btn btn-neutral ml-2'>Extract</button>
-                    </Link>
-                    <button
-                      className='btn btn-error ml-2'
-                      onClick={() => handleDelete(item.id)}
+                  <td className='ruRow gap-5'>
+                    <Button to={`/templates/${item.pdf_id}`}>
+                      Edit Template
+                    </Button>
+                    <Button
+                      type='primary'
+                      to={`/templates/extract/${item.pdf_id}`}
                     >
+                      Extract
+                    </Button>
+
+                    <Button type='danger' onClick={() => handleDelete(item.id)}>
                       Delete
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))
@@ -67,17 +68,14 @@ const Templates = () => {
                   <th>{i + 1}</th>
                   <td>{item.id}</td>
                   <td>{item.file_name}</td>
-                  <td>
-                    <Link to={`/templates/${item.id}`}>
-                      <button className='btn'>Create Template</button>
-                    </Link>
+                  <td className='ruRow gap-5'>
+                    <Button to={`/templates/${item.id}`}>
+                      Create Template
+                    </Button>
 
-                    <button
-                      className='btn btn-error ml-2'
-                      onClick={() => handleDelete(item.id)}
-                    >
+                    <Button type='danger' onClick={() => handleDelete(item.id)}>
                       Delete All
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))

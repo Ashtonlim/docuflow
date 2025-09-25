@@ -3,6 +3,7 @@ import Home from '@/pages/Home/Home.jsx'
 import Resources from '@/pages/Resources/Resources.jsx'
 import TemplateManager from '@/pages/TemplateManager/TemplateManager.jsx'
 import Templates from '@/pages/Templates/Templates.jsx'
+import Targets from '@/pages/Targets/Targets.jsx'
 import Extract from '@/pages/Extract/Extract.jsx'
 import { BrowserRouter, Route, Routes } from 'react-router'
 
@@ -23,6 +24,7 @@ const App = () => {
         <Route index element={<Home />} />
         <Route path='about' element={<About />} />
         <Route path='resources' element={<Resources />} />
+        <Route path='targets' element={<Targets />} />
         <Route path='templates/extract/:id' element={<Extract />} />
         <Route path='templates' element={<Templates />} />
         <Route path='templates/:id' element={<TemplateManager />} />

@@ -10,6 +10,7 @@ import PdfOverlay from '@/components/PdfOverlay'
 import { Document } from 'react-pdf'
 import SelectedWordsList from '@/components/SelectedWordsList'
 import Steps from '../../components/Steps'
+import Button from '../../components/Button'
 
 const options = {
   cMapUrl: '/cmaps/',
@@ -63,8 +64,7 @@ export default function Extract() {
             <div>
               Current Step: Verify the text extraction is correct to move on to
             </div>
-
-            <button className='btn'>Extract and save fields</button>
+            <Button>Extract and save fields</Button>
           </div>
         )}
 
