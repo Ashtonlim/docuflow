@@ -9,14 +9,8 @@ import { useParams } from 'react-router'
 import SelectedWordsList from '../../components/SelectedWordsList'
 import PdfOverlay from '@/components/PdfOverlay'
 import PdfPage from '@/components/PdfPage'
-
+import { options } from '../../utils/constants'
 import SaveTemplateForm from './SaveTemplateForm'
-
-const options = {
-  cMapUrl: '/cmaps/',
-  standardFontDataUrl: '/standard_fonts/',
-  wasmUrl: '/wasm/',
-}
 
 // const loc = useLocation()
 export default function TemplateManager() {

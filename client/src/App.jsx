@@ -1,6 +1,5 @@
 import About from '@/pages/About/About.jsx'
 import Home from '@/pages/Home/Home.jsx'
-import Resources from '@/pages/Resources/Resources.jsx'
 import TemplateManager from '@/pages/TemplateManager/TemplateManager.jsx'
 import Templates from '@/pages/Templates/Templates.jsx'
 import Targets from '@/pages/Targets/Targets.jsx'
@@ -23,7 +22,6 @@ const App = () => {
       <Routes>
         <Route index element={<Home />} />
         <Route path='about' element={<About />} />
-        <Route path='resources' element={<Resources />} />
         <Route path='targets' element={<Targets />} />
         <Route path='templates/extract/:id' element={<Extract />} />
         <Route path='templates' element={<Templates />} />

@@ -11,12 +11,7 @@ import { Document } from 'react-pdf'
 import SelectedWordsList from '@/components/SelectedWordsList'
 import Steps from '../../components/Steps'
 import Button from '../../components/Button'
-
-const options = {
-  cMapUrl: '/cmaps/',
-  standardFontDataUrl: '/standard_fonts/',
-  wasmUrl: '/wasm/',
-}
+import { options } from '../../utils/constants'
 
 export default function Extract() {
   const [file, setFile] = useState(null)

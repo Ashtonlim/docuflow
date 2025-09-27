@@ -2,6 +2,7 @@ import { delCoordFromPage } from '@/features/pdf/pdfSlice'
 import { useDispatch } from 'react-redux'
 const SelectionBox = ({ coords, page, canDelete = false }) => {
   const dispatch = useDispatch()
+
   return (
     <div
       className='absolute z-20'
@@ -10,10 +11,10 @@ const SelectionBox = ({ coords, page, canDelete = false }) => {
         border: '2px dashed #3b82f6',
         backgroundColor: 'rgba(59, 130, 246, 0.2)',
         cursor: 'default',
-        left: `${coords.pdfX * 100}%`,
-        top: `${coords.domY * 100}%`,
-        width: coords.width * page.width,
-        height: coords.height * page.height,
+        left: `${coords.left * 100}%`,
+        top: `${(1 - coords.top) * 100}%`,
+        width: (coords.right - coords.left) * page.width,
+        height: (coords.top - coords.bottom) * page.height,
         zIndex: 20,
         // pointerEvents: 'auto',
         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',

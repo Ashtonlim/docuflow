@@ -4,11 +4,17 @@ import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router'
 import FileUploader from '@/components/FileUploader'
+import { Document } from 'react-pdf'
+import PdfOverlay from '@/components/PdfOverlay'
+import PdfPage from '@/components/PdfPage'
+import { options } from '../../utils/constants'
 
 export default function Targets() {
+  const [file, setFile] = useState(null)
+  const [pages, setPages] = useState(null)
+
   const pdf = useSelector((state) => state.pdf)
   const dispatch = useDispatch()
-  const [file, setFile] = useState(null)
   const navigate = useNavigate()
 
   const onFileChange = (event) => {
@@ -17,14 +23,17 @@ export default function Targets() {
       setFile(nextFile)
     }
 
-    dispatch(uploadPDF(nextFile))
-      .unwrap()
-      .then((res) => {
-        navigate(`/templates/${res.id}`)
-      })
-      .catch((err) => {
-        throw new Error(err)
-      })
+    // dispatch(uploadPDF(nextFile))
+    //   .unwrap()
+    //   .then((res) => {
+    //     navigate(`/templates/${res.id}`)
+    //   })
+    //   .catch((err) => {
+    //     throw new Error(err)
+    //   })
+  }
+  const onDocumentLoadSuccess = ({ numPages }) => {
+    setPages(numPages)
   }
 
   return (
@@ -37,6 +46,29 @@ export default function Targets() {
         </div>
 
         {file === null && <FileUploader onFileChange={onFileChange} />}
+        <div className='pdfviewer__container'>
+          {file && (
+            <div className='pdfviewer__container__document'>
+              <Document
+                key={file}
+                file={file}
+                onLoadSuccess={onDocumentLoadSuccess}
+                options={options}
+              >
+                {pages
+                  ? [...Array(pages).keys()].map((pageNumber) => (
+                      <div key={`pg_${pageNumber + 1}`} className='ruRow'>
+                        <div className='relative mt-3 inline-block'>
+                          <PdfPage page_number={pageNumber + 1} />
+                          <PdfOverlay page_number={pageNumber + 1} />
+                        </div>
+                      </div>
+                    ))
+                  : 0}
+              </Document>
+            </div>
+          )}
+        </div>
       </div>
     </LayoutOne>
   )
