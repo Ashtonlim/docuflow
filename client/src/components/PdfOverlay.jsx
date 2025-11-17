@@ -82,12 +82,13 @@ const PdfOverlay = ({ page_number, editable = true }) => {
     // )
 
     const coord = calcCoordinates(area, pdf.pages[page_number])
-
     coord.page_number = page_number
-    coord.label_name = `${page_number}_`
+    coord.label = `${page_number}_`
 
     coord.selectedWords = getWordsInAreaFromPage(coord, pdf.pages[page_number])
     coord.id = `${coord.left},${coord.bottom},${coord.right},${coord.top}`
+    console.log('calcCoordinates pdfOverlay', coord)
+
     setArea(() => [0, 0, 0, 0])
 
     dispatch(addBoundingBox(coord))

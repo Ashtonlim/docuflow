@@ -5,9 +5,10 @@ export const getWordsInAreaFromPage = (area, pageData) => {
   if (!pageData) {
     return []
   }
+
   const { words, width, height } = pageData
 
-  return words
+  const found = words
     ?.filter((word) => {
       let x = word.transform[4] / width
       let y = word.transform[5] / height
@@ -20,8 +21,12 @@ export const getWordsInAreaFromPage = (area, pageData) => {
 
       return xInArea && yInArea
     })
-    ?.map((word) => (word.str == '' ? ' ' : word.str))
-    .join('')
+    ?.map((word) => {
+      return word.str == '' ? ' ' : word.str
+    })
+    ?.join('')
+
+  return found
 }
 
 export const calcCoordinates = (area, { width, height }) => {

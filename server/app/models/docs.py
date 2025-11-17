@@ -29,12 +29,11 @@ class TemplateBasic(SQLModel):
 
 class BoundingBox(SQLModel):
     id: str
-    label_name: str
-    pdfX: float
-    pdfY: float
-    domY: float
-    width: float
-    height: float
+    label: str
+    left: float
+    bottom: float
+    right: float
+    top: float
     page_number: int
 
 

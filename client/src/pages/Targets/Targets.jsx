@@ -8,6 +8,7 @@ import { Document } from 'react-pdf'
 import PdfOverlay from '@/components/PdfOverlay'
 import PdfPage from '@/components/PdfPage'
 import { options } from '../../utils/constants'
+import SelectedWordsList from '../../components/SelectedWordsList'
 
 export default function Targets() {
   const [file, setFile] = useState(null)
@@ -62,6 +63,7 @@ export default function Targets() {
                           <PdfPage page_number={pageNumber + 1} />
                           <PdfOverlay page_number={pageNumber + 1} />
                         </div>
+                        <SelectedWordsList page_number={pageNumber + 1} />
                       </div>
                     ))
                   : 0}

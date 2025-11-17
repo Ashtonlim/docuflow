@@ -3,6 +3,8 @@ import { useDispatch } from 'react-redux'
 const SelectionBox = ({ coords, page, canDelete = false }) => {
   const dispatch = useDispatch()
 
+  // console.log('coords', coords)
+
   return (
     <div
       className='absolute z-20'
