@@ -25,7 +25,7 @@ export default function Home() {
 
   return (
     <LayoutOne>
-      <div className='ruCol'>
+      <div className='flex flex-col'>
         <h4>Create Template to Extract Fields from PDFs </h4>
         <div>
           Select areas of your PDF you wish to automate extracting text from.

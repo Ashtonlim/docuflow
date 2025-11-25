@@ -287,17 +287,3 @@ button:focus-visible {
 }
 
 /* ========== */
-
-.ruRow {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.ruCol {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-}

@@ -191,71 +191,11 @@
   width: 100vw;
 }
 
-h1 {
-  font-size: var(--step-5);
-  font-weight: bold;
-}
-
-h2 {
-  font-size: var(--step-4);
-  font-weight: bold;
-}
-
-h3 {
-  font-size: var(--step-3);
-  font-weight: bold;
-}
-
-h4 {
-  font-size: var(--step-2);
-  font-weight: bold;
-}
-
-h5 {
-  font-size: var(--step-1);
-  font-weight: bold;
-}
-
-h6 {
-  font-size: var(--step--2);
-  font-weight: bold;
-}
-
-.text-sm-scale {
-  font-size: var(--step--2);
-}
-
-.text-md-scale {
-  font-size: var(--step--1);
-}
-
-.text-lg-scale {
-  font-size: var(--step-1);
-}
-
-.text-2lg-scale {
-  font-size: var(--step-2);
-}
-
-/* a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-} */
-
 body {
   margin: 0;
   display: flex;
   place-items: center;
   display: flex;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
 }
 
 button {
@@ -290,73 +230,6 @@ button:focus-visible {
   } */
 }
 
-/* ========== */
-
-.ruRow {
-  display: flex;
-  flex-direction: row;
-  /* justify-content: space-between;
-  align-items: center; */
-}
-
-.ruCol {
-  display: flex;
-  flex-direction: column;
-  /* justify-content: space-between;
-  align-items: center; */
-}
-
-/* .cntr {
-  display: flex;
-
-} */
-
-.va {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .hbtn-pri[data-selected='true'] {
   background-color: var(--color-secondary-300);
-}
-
-.pdfviewer input,
-.pdfviewer button {
-  font: inherit;
-}
-
-.pdfviewer__container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 10px 0;
-  padding: 10px;
-}
-
-.pdfviewer__container__load {
-  margin-top: 1em;
-  color: white;
-}
-
-.pdfviewer__container__document {
-  width: 100%;
-  /* max-width: calc(100% - 2em); */
-  margin: 1em 0;
-}
-
-.pdfviewer__container__document .react-pdf__Document {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.pdfviewer__container__document .react-pdf__Page {
-  /* margin: 10px 0; */
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
-}
-
-.pdfviewer__container__document .react-pdf__message {
-  padding: 20px;
-  color: white;
 }

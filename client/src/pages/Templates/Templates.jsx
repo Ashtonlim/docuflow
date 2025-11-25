@@ -40,7 +40,7 @@ const Templates = () => {
                   <th>{i + 1}</th>
                   <td>{item.id}</td>
                   <td>{item.pdf_id}</td>
-                  <td className='ruRow gap-5'>
+                  <td className='flex flex-row gap-5'>
                     <Button to={`/templates/${item.pdf_id}`}>
                       Edit Template
                     </Button>
@@ -66,7 +66,7 @@ const Templates = () => {
                   <th>{i + 1}</th>
                   <td>{item.id}</td>
                   <td>{item.file_name}</td>
-                  <td className='ruRow gap-5'>
+                  <td className='flex flex-row gap-5'>
                     <Button to={`/templates/${item.id}`}>
                       Create Template
                     </Button>

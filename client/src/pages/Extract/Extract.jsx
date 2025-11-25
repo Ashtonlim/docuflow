@@ -73,7 +73,7 @@ export default function Extract() {
 
   return (
     <LayoutOne>
-      <div className='ruCol'>
+      <div className='flex flex-col'>
         <div className='flex w-full flex-row justify-center'>
           <Steps at={0} />
         </div>
@@ -85,7 +85,7 @@ export default function Extract() {
         {!targetFile ? (
           <FileUploader label='Upload target PDF' onFileChange={onFileChange} />
         ) : (
-          <div className='ruCol mt-4'>
+          <div className='mt-4 flex flex-col'>
             <div>
               Current Step: Verify the text extraction is correct to move on to
             </div>
@@ -106,7 +106,10 @@ export default function Extract() {
                   >
                     {basePages ? (
                       [...Array(basePages).keys()].map((pageNumber) => (
-                        <div key={`pg_${pageNumber + 1}`} className='ruRow'>
+                        <div
+                          key={`pg_${pageNumber + 1}`}
+                          className='flex flex-row'
+                        >
                           <div className='relative mb-3 inline-block'>
                             <PdfPage page_number={pageNumber + 1} />
                             <PdfOverlay
@@ -138,7 +141,10 @@ export default function Extract() {
                   >
                     {targetPages
                       ? [...Array(targetPages).keys()].map((pageNumber) => (
-                          <div key={`pg_${pageNumber + 1}`} className='ruRow'>
+                          <div
+                            key={`pg_${pageNumber + 1}`}
+                            className='flex flex-row'
+                          >
                             <div className='relative mt-3 inline-block'>
                               <PdfPage page_number={pageNumber + 1} />
                               <PdfOverlay

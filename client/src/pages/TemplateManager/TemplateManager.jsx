@@ -67,7 +67,7 @@ export default function TemplateManager() {
   return (
     <LayoutOne>
       <div className='pdfviewer'>
-        <div className='ruCol'>
+        <div className='flex flex-col'>
           <h4>Create Template </h4>
           <div>
             Select areas of your PDF you wish to automate extracting text from.
@@ -93,7 +93,10 @@ export default function TemplateManager() {
               >
                 {pages
                   ? [...Array(pages).keys()].map((pageNumber) => (
-                      <div key={`pg_${pageNumber + 1}`} className='ruRow'>
+                      <div
+                        key={`pg_${pageNumber + 1}`}
+                        className='flex flex-row'
+                      >
                         <div className='relative mt-3 inline-block'>
                           <PdfPage page_number={pageNumber + 1} />
                           <PdfOverlay page_number={pageNumber + 1} />

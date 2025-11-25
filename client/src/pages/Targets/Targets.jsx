@@ -39,7 +39,7 @@ export default function Targets() {
 
   return (
     <LayoutOne>
-      <div className='ruCol'>
+      <div className='flex flex-col'>
         <h4>Upload Target PDFs</h4>
         <div>
           Target PDFs are files you wish to insert text into from values
@@ -58,7 +58,10 @@ export default function Targets() {
               >
                 {pages
                   ? [...Array(pages).keys()].map((pageNumber) => (
-                      <div key={`pg_${pageNumber + 1}`} className='ruRow'>
+                      <div
+                        key={`pg_${pageNumber + 1}`}
+                        className='flex flex-row'
+                      >
                         <div className='relative mt-3 inline-block'>
                           <PdfPage page_number={pageNumber + 1} />
                           <PdfOverlay page_number={pageNumber + 1} />
