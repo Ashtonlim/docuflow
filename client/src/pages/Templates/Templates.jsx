@@ -1,10 +1,9 @@
 import LayoutOne from '@/components/LayoutOne'
 import {
   useGetTemplatesQuery,
-  useDeleteDocMutation,
   useGetDocsQuery,
 } from '@/features/template/templateSlice'
-import { Link } from 'react-router'
+import Button from '../../components/Button'
 const Templates = () => {
   // const pdf = useSelector((state) => state.pdf)
 
@@ -24,13 +23,12 @@ const Templates = () => {
     <LayoutOne>
       <div className='rounded-box border-base-content/5 bg-base-100 overflow-x-auto border'>
         <table className='table'>
-          {/* head */}
           <thead>
             <tr>
               <th></th>
               <th>ID</th>
               <th>Name</th>
-              <th>Actions</th>
+              <th className='w-4/15'>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -41,20 +39,21 @@ const Templates = () => {
                 <tr key={item.id}>
                   <th>{i + 1}</th>
                   <td>{item.id}</td>
-                  <td>{item.file_name}</td>
-                  <td>
-                    <Link to={`/templates/${item.pdf_id}`}>
-                      <button className='btn'>Edit Template</button>
-                    </Link>
-                    <Link to={`/templates/extract/${item.pdf_id}`}>
-                      <button className='btn btn-neutral ml-2'>Extract</button>
-                    </Link>
-                    <button
-                      className='btn btn-error ml-2'
-                      onClick={() => handleDelete(item.id)}
+                  <td>{item.pdf_id}</td>
+                  <td className='flex flex-row gap-5'>
+                    <Button to={`/templates/${item.pdf_id}`}>
+                      Edit Template
+                    </Button>
+                    <Button
+                      type='primary'
+                      to={`/templates/extract/${item.pdf_id}/${item.id}`}
                     >
+                      Extract
+                    </Button>
+
+                    <Button type='danger' onClick={() => handleDelete(item.id)}>
                       Delete
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))
@@ -67,17 +66,14 @@ const Templates = () => {
                   <th>{i + 1}</th>
                   <td>{item.id}</td>
                   <td>{item.file_name}</td>
-                  <td>
-                    <Link to={`/templates/${item.id}`}>
-                      <button className='btn'>Create Template</button>
-                    </Link>
+                  <td className='flex flex-row gap-5'>
+                    <Button to={`/templates/${item.id}`}>
+                      Create Template
+                    </Button>
 
-                    <button
-                      className='btn btn-error ml-2'
-                      onClick={() => handleDelete(item.id)}
-                    >
+                    <Button type='danger' onClick={() => handleDelete(item.id)}>
                       Delete All
-                    </button>
+                    </Button>
                   </td>
                 </tr>
               ))
@@ -89,18 +85,7 @@ const Templates = () => {
   )
 }
 
-// const TemplatesTable = ({ data, isTemplates }) => {
-//   const [del, { isLoading, isUpdating }] = useDeleteDocMutation()
-//   const handleDelete = (id) => {
-//     del(id)
-//   }
-//   return (
-
-//   )
-// }
-
 export default Templates
 
 // okay i have a problem, i uploaded a file,
-
 // A non-serializable value was detected in an action

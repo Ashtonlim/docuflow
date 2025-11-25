@@ -1,6 +1,6 @@
-delete from templates
 
 
 
 -- insert into users values (1, 'ash', 'ashton.lim123@gmail.com');
--- select * from templates
+-- select * from documents
+delete from templates

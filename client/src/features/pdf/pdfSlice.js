@@ -8,6 +8,7 @@ const initialState = {
   status: 'idle',
   bounding_boxes: [],
   pages: {},
+  curSelectedBb: null,
 }
 
 export const uploadPDF = createAsyncThunk(
@@ -91,6 +92,9 @@ export const pdfSlice = createSlice({
         itemToUpdate.label = value
       }
     },
+    setClickedElement: (state, action) => {
+      state.curSelectedBb = action.payload
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -112,6 +116,7 @@ export const {
   addBoundingBox,
   delCoordFromPage,
   updateLabel,
+  setClickedElement,
 } = pdfSlice.actions
 
 export default pdfSlice.reducer

@@ -32,3 +32,13 @@ Upgrade: `alembic upgrade head`
 Upgrade (with number): `alembic upgrade +2`
 
 Downgrade (use number only): `alembic downgrade -1`
+
+### EXTRAS
+
+```
+alias uvr='uv run'
+alias uvrf='uv run fastapi dev app/main.py'
+alias uva='uv add'
+alias uvraram='uv run alembic revision --autogenerate -m'
+alias uvrauh='uv run alembic upgrade head'
+```

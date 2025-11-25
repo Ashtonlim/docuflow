@@ -2,6 +2,7 @@ import uuid
 from typing import Annotated
 
 import boto3
+from botocore.exceptions import ClientError
 from fastapi import APIRouter, HTTPException, Query, Response, UploadFile
 from fastapi.responses import FileResponse, StreamingResponse
 from sqlmodel import select
@@ -42,6 +43,7 @@ async def upload_document(session: SessionDep, file: UploadFile) -> Docs:
         print('err', e)
         raise HTTPException(status_code=500, detail=f'S3 failed to get: {e}')
 
+    # TODO: convert this to env var
     url = f'http://127.0.0.1:9090/browser/pdf-docs/{object_key}'
     doc = Docs(id=file_id, created_by=1, file_name=file.filename, file_path=url)
 
@@ -81,17 +83,16 @@ def get_document(document_id: str, session: SessionDep):
         raise HTTPException(status_code=404, detail='Document not found')
 
     try:
-        obj = s3.get_object(Bucket=BUCKET, Key=f'{document_id}.pdf')
+        # obj = s3.get_object(Bucket=BUCKET, Key=f'{document_id}.pdf')
+        url = s3.generate_presigned_url(
+            ClientMethod='get_object',
+            Params={'Bucket': BUCKET, 'Key': f'{document_id}.pdf'},
+            ExpiresIn=3600,  # URL valid for 1 hour
+        )
+    except ClientError as e:
+        raise HTTPException(status_code=500, detail=f'Could not generate URL: {e}')
 
-    except Exception as e:
-        raise HTTPException(status_code=404, detail=f'File not found: {e}')
-
-    # We’ll stream the object back
-    return StreamingResponse(
-        obj['Body'],  # the file-like object
-        media_type='application/pdf',
-        headers={'Content-Disposition': f'inline; filename="{document_id}.pdf"'},
-    )
+    return {'id': document_id, 'name': f'{document_id}.pdf', 'url': url}
 
 
 @router.get('/{file_name}')
@@ -99,6 +100,7 @@ def get_document_by_name(file_name: str, session: SessionDep):
     document = session.get(Docs, file_name)
     if not document:
         raise HTTPException(status_code=404, detail='Document not found')
+
     return document
 
 
