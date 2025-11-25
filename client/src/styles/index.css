@@ -306,6 +306,11 @@ button:focus-visible {
   align-items: center; */
 }
 
+/* .cntr {
+  display: flex;
+
+} */
+
 .va {
   display: flex;
   justify-content: center;

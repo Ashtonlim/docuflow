@@ -95,8 +95,8 @@ async def create_template(session: SessionDep, data: CreateTemplate) -> Any:
 
 
 @router.get('/{file_id}')
-async def get_templates_by_id(file_id: str, session: SessionDep):
-    res = await session.execute(select(Templates).where(Templates.pdf_id == file_id))
+async def get_templates_by_id(file_id: int, session: SessionDep):
+    res = await session.execute(select(Templates).where(Templates.id == file_id))
     # res = session.get(Templates, file_id)
 
     return res.scalar_one()

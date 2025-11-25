@@ -6,41 +6,44 @@ import { useCreateTemplateMutation } from '@/features/template/templateSlice'
 import { reInitFile } from '@/features/pdf/pdfSlice'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router'
-import SelectedWordsList from '../../components/SelectedWordsList'
+import SelectedWordsList from '@/components/SelectedWordsList'
+import FPSpinner from '@/components/FullPageSpinner'
 import PdfOverlay from '@/components/PdfOverlay'
 import PdfPage from '@/components/PdfPage'
-import { options } from '../../utils/constants'
+import { options } from '@/utils/constants'
 import SaveTemplateForm from './SaveTemplateForm'
+import { useGetPDFQuery } from '@/features/template/templateSlice'
 
-// const loc = useLocation()
+// NOTE: Passing a raw fetch Blob or File to react-pdf can fail on route navigation
+// because PDF.js worker may try to read the stream before the Blob is fully realized.
+// Using URL.createObjectURL(blob) creates a stable object URL that PDF.js can reliably fetch,
+// ensuring consistent rendering across navigation and remounts.
+
 export default function TemplateManager() {
   const pdf = useSelector((state) => state.pdf)
   const [createTemplate, { isLoading, isUpdating }] =
     useCreateTemplateMutation()
   const dispatch = useDispatch()
-  const { id } = useParams()
+  const { pdf_id } = useParams()
+
+  const {
+    data: pdfData,
+    isLoading: isPdfLoading,
+    isError: isPdfError,
+  } = useGetPDFQuery(pdf_id)
 
   const [pages, setPages] = useState(null)
   const [pdfUrl, setPdfUrl] = useState(null)
   const [templateName, setTemplateName] = useState('')
 
   useEffect(() => {
-    const getFile = async () => {
-      const res = await fetch(`${config.API_URL}/documents/${id}`)
-      if (!res.ok) {
-        console.error('failed to get file', res)
-      }
-      const blob = await res.blob()
-      // NOTE: Passing a raw fetch Blob or File to react-pdf can fail on route navigation
-      // because PDF.js worker may try to read the stream before the Blob is fully realized.
-      // Using URL.createObjectURL(blob) creates a stable object URL that PDF.js can reliably fetch,
-      // ensuring consistent rendering across navigation and remounts.
-      const url = URL.createObjectURL(blob)
-      setPdfUrl(url)
+    if (!pdfData) {
+      return
     }
-    dispatch(reInitFile({ pdf_id: id }))
-    getFile()
-  }, [])
+    dispatch(reInitFile({ pdf_id }))
+
+    setPdfUrl(pdfData.url)
+  }, [pdfData])
 
   const onDocumentLoadSuccess = ({ numPages }) => {
     setPages(numPages)
@@ -55,6 +58,10 @@ export default function TemplateManager() {
       description: 'test',
     }
     createTemplate(payload)
+  }
+
+  if (isPdfLoading) {
+    return <FPSpinner />
   }
 
   return (

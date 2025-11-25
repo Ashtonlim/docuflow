@@ -1,7 +1,6 @@
 import LayoutOne from '@/components/LayoutOne'
 import {
   useGetTemplatesQuery,
-  useDeleteDocMutation,
   useGetDocsQuery,
 } from '@/features/template/templateSlice'
 import Button from '../../components/Button'
@@ -24,7 +23,6 @@ const Templates = () => {
     <LayoutOne>
       <div className='rounded-box border-base-content/5 bg-base-100 overflow-x-auto border'>
         <table className='table'>
-          {/* head */}
           <thead>
             <tr>
               <th></th>
@@ -41,14 +39,14 @@ const Templates = () => {
                 <tr key={item.id}>
                   <th>{i + 1}</th>
                   <td>{item.id}</td>
-                  <td>{item.file_name}</td>
+                  <td>{item.pdf_id}</td>
                   <td className='ruRow gap-5'>
                     <Button to={`/templates/${item.pdf_id}`}>
                       Edit Template
                     </Button>
                     <Button
                       type='primary'
-                      to={`/templates/extract/${item.pdf_id}`}
+                      to={`/templates/extract/${item.pdf_id}/${item.id}`}
                     >
                       Extract
                     </Button>
@@ -87,18 +85,7 @@ const Templates = () => {
   )
 }
 
-// const TemplatesTable = ({ data, isTemplates }) => {
-//   const [del, { isLoading, isUpdating }] = useDeleteDocMutation()
-//   const handleDelete = (id) => {
-//     del(id)
-//   }
-//   return (
-
-//   )
-// }
-
 export default Templates
 
 // okay i have a problem, i uploaded a file,
-
 // A non-serializable value was detected in an action

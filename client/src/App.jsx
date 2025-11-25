@@ -23,9 +23,12 @@ const App = () => {
         <Route index element={<Home />} />
         <Route path='about' element={<About />} />
         <Route path='targets' element={<Targets />} />
-        <Route path='templates/extract/:id' element={<Extract />} />
+        <Route
+          path='templates/extract/:pdf_id/:template_id'
+          element={<Extract />}
+        />
         <Route path='templates' element={<Templates />} />
-        <Route path='templates/:id' element={<TemplateManager />} />
+        <Route path='templates/:pdf_id' element={<TemplateManager />} />
 
         {/* Catch-all route for undefined paths */}
         {/* <Route path='*' element={<Navigate to='/' replace />} /> */}

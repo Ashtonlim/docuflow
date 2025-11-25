@@ -7,7 +7,6 @@ const SelectedWordsList = ({ page_number }) => {
   const pdf = useSelector((state) => state.pdf)
   const dispatch = useDispatch()
 
-  // console.log(pdf.bounding_boxes)
   return pdf.pages[page_number] ? (
     <div>
       {pdf.bounding_boxes
@@ -20,7 +19,6 @@ const SelectedWordsList = ({ page_number }) => {
           let text =
             selectedWords || getWordsInAreaFromPage(box, pdf.pages[page_number])
 
-          console.log('found words', selectedWords, text)
           return (
             <div key={id}>
               <div className='ml-5'>
