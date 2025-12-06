@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\"",
+    "test": "echo \"Add tests\"",
     "prepare": "husky"
   },
   "keywords": [],
@@ -16,6 +16,7 @@
     "@commitlint/cli": "^20.2.0",
     "@commitlint/config-conventional": "^20.2.0",
     "@commitlint/types": "^20.2.0",
+    "conventional-changelog-atom": "^5.0.0",
     "husky": "^9.1.7"
   }
 }
