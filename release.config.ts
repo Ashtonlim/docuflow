@@ -1,3 +1,3 @@
 export default {
-  branches: ["master", "next"],
+  branches: ["main"],
 };
