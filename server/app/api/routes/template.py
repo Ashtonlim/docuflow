@@ -39,43 +39,39 @@ USER = 'ash'
 
 
 @router.get('/')
-def get_templates(
+async def get_templates(
     session: SessionDep,
     offset: int = 0,
     limit: Annotated[int, Query(le=100)] = 100,
 ) -> list[Templates]:
-    templates = session.exec(select(Templates).offset(offset).limit(limit)).all()
-    return list(templates)
+    templates = await session.execute(select(Templates).offset(offset).limit(limit))
+    return list(templates.scalars().all())
 
 
 @router.get('/basic', response_model=list[TemplateBasic])
-def get_templates_without_boxes(
+async def get_templates_without_boxes(
     session: SessionDep,
     offset: int = 0,
     limit: Annotated[int, Query(le=100)] = 100,
 ):
-    result = (
-        session.exec(
-            select(
-                Templates.id,
-                Templates.pdf_id,
-                Templates.created_by,
-                Templates.name,
-                Templates.description,
-            )  # type: ignore
-            .offset(offset)
-            .limit(limit)
-        )
-        .mappings()
-        .all()
+    result = await session.execute(
+        select(
+            Templates.id,
+            Templates.pdf_id,
+            Templates.created_by,
+            Templates.name,
+            Templates.description,
+        )  # type: ignore
+        .offset(offset)
+        .limit(limit)
     )
 
-    return [TemplateBasic(**row) for row in result]
+    return [TemplateBasic(**row) for row in result.mappings().all()]
     # return templates
 
 
 @router.post('/')
-def create_template(session: SessionDep, data: CreateTemplate) -> Any:
+async def create_template(session: SessionDep, data: CreateTemplate) -> Any:
     # check if pdf exists
     # get all documents
 
@@ -89,18 +85,18 @@ def create_template(session: SessionDep, data: CreateTemplate) -> Any:
         )
 
         session.add(template)
-        session.commit()
-        session.refresh(template)
+        await session.commit()
+        await session.refresh(template)
     except Exception as e:
-        session.rollback()
+        await session.rollback()
         raise HTTPException(status_code=500, detail=f'couldn not create template: {e}')
 
     return {'res': 'ok'}
 
 
 @router.get('/{file_id}')
-def get_templates_by_id(file_id: str, session: SessionDep):
-    res = session.exec(select(Templates).where(Templates.pdf_id == file_id)).one()
+async def get_templates_by_id(file_id: int, session: SessionDep):
+    res = await session.execute(select(Templates).where(Templates.id == file_id))
     # res = session.get(Templates, file_id)
 
-    return res
+    return res.scalar_one()

@@ -5,7 +5,7 @@ const LayoutOne = ({ children = <></> }) => {
   return (
     <>
       <Header />
-      <main className='ruCol bg-background-50 min-h-screen pt-8 pb-15'>
+      <main className='bg-background-50 flex min-h-screen flex-col pt-8 pb-15'>
         <div className='mx-auto w-9/10'>
           <Fragment>{children}</Fragment>
         </div>

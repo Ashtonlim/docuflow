@@ -2,29 +2,40 @@ from logging.config import fileConfig
 from pathlib import Path
 
 from alembic import context
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import create_engine, pool
+from sqlalchemy.engine import Engine
 from sqlmodel import SQLModel
 
-# imported to give awareness to alembic on models used
+from app.core.db import settings
 from app.models import docs, users
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
+# from psycopg import connection
+
+# # imported to give awareness to alembic on models used
+# from app.models import docs, users
+
+# # this is the Alembic Config object, which provides
+# # access to the values within the .ini file in use.
+# config = context.config
+
+
+# ================
+# Alembic Config object
 config = context.config
 
+# print('DB_PATH', settings.DATABASE_URL.unicode_string())
+# Override the sqlalchemy.url with our settings
+config.set_main_option('sqlalchemy.url', settings.DATABASE_URL.unicode_string())
 
-DB_PATH = str((Path().parent / 'database.db').resolve())
-config.set_main_option('sqlalchemy.url', f'sqlite:///{DB_PATH}')
-
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
+# Interpret the config file for Python logging
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
+
 
 # add your model's MetaData object here
 # for 'autogenerate' support
 target_metadata = SQLModel.metadata
-# target_metadata = None
+# =======================
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -50,6 +61,7 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={'paramstyle': 'named'},
+        compare_type=True,
     )
 
     with context.begin_transaction():
@@ -57,15 +69,13 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode.
+    """Run migrations in 'online' mode."""
 
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
-
-    """
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix='sqlalchemy.',
+    # according to chatgpt, alembic isn't compatible with the async engin
+    # so we create a sync engine to create the migrations.
+    # since this is done outside of runtime, doesn't matter that it's used here.
+    connectable: Engine = create_engine(
+        settings.DATABASE_URL.unicode_string(),
         poolclass=pool.NullPool,
     )
 
@@ -73,6 +83,7 @@ def run_migrations_online() -> None:
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
+            compare_type=True,
         )
 
         with context.begin_transaction():

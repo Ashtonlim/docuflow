@@ -3,11 +3,13 @@ import { Link } from 'react-router'
 import config from '@/config.js'
 import LinkButton from './LinkButton'
 import ThemeToggle from './ThemeToggle'
+import Button from './Button'
 
 const navLinks = {
   Home: '/',
   About: '/about',
   Templates: '/templates',
+  Targets: '/targets',
 }
 
 const HamburgerIcon = () => (
@@ -52,16 +54,14 @@ const Header = () => {
               {config.APP_NAME}
             </span>
           </Link>
-          <div className='flex items-center lg:order-2'>
+          <div className='flex items-center gap-4 lg:order-2'>
             <div>
               <ThemeToggle />
             </div>
-            <a
-              href='#'
-              className='mr-2 rounded-lg px-4 py-2 hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 focus:outline-none lg:px-5 lg:py-2.5'
-            >
-              Log in
-            </a>
+            <Button to='/'>Login</Button>
+            <Button to='/flow' type='primary'>
+              Create Extraction Flow
+            </Button>
 
             <button
               data-collapse-toggle='mobile-menu-2'

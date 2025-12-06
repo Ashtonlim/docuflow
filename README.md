@@ -1,5 +1,7 @@
 # docuflow
 
+Docuflow is an app to help automate extracting text from PDFs and inserting them into a target PDF. It works by selecting areas of text you wish to extract, a base PDF you wish to extract from, and mapping each selection onto another PDF by their respective AcroFields label name.
+
 ## Potentially interesting resources
 
 1. https://www.timpaul.co.uk/posts/using-ai-to-generate-web-forms-from-pdfs/

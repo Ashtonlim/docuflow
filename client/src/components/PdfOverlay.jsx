@@ -3,14 +3,14 @@ import { useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import SelectionBox from '@/components/SelectionBox'
 
-import { getWordsInAreaFromPage, calcCoordinates } from '@/utils/pdfUtils'
+import { getWordsInAreaFromPage, normalisePoints } from '@/utils/pdfUtils'
 
-const PdfOverlay = ({ page_number, editable = true }) => {
+const PdfOverlay = ({ page_number, bounding_boxes, editable }) => {
   const dispatch = useDispatch()
   const pdf = useSelector((state) => state.pdf)
 
-  const [domStart, setdomStart] = useState([-1, -1])
-  const [domEnd, setdomEnd] = useState([-1, -1])
+  // left, bottom, right, top
+  const [area, setArea] = useState([0, 0, 0, 0])
   const [isSelecting, setIsSelecting] = useState(false)
 
   // ✅ Memoize coordinate rendering
@@ -40,9 +40,9 @@ const PdfOverlay = ({ page_number, editable = true }) => {
     // clientX and Y are points relative to entire html
 
     const rect = e.currentTarget.getBoundingClientRect()
-    const domX = e.clientX - rect.left
-    const domY = e.clientY - rect.top
-    return [domX, domY]
+    const x = e.clientX - rect.left
+    const y = pdf.pages[page_number].height - (e.clientY - rect.top)
+    return [x, y]
   }
 
   const handleMouseDown = (e) => {
@@ -52,16 +52,19 @@ const PdfOverlay = ({ page_number, editable = true }) => {
 
     // only want even to trigger when clicking on base element, not on some overlay or sibling element that's currently over target
     if (e.target === e.currentTarget) {
-      const xy = getDOMxy(e)
-      setdomEnd(xy)
-      setdomStart(xy)
+      const [x, y] = getDOMxy(e)
+      setArea(() => [x, y, x, y])
       setIsSelecting(true)
     }
   }
 
   const handleMouseMove = (e) => {
+    // const { bottom, right } = e.currentTarget.getBoundingClientRect()
     // don't run if mouseDown wasn't valid
-    return isSelecting ? setdomEnd(getDOMxy(e)) : null
+    if (isSelecting) {
+      const [x, y] = getDOMxy(e)
+      setArea(() => [area[0], y, x, area[3]])
+    }
   }
 
   const handleMouseUp = (e) => {
@@ -71,21 +74,23 @@ const PdfOverlay = ({ page_number, editable = true }) => {
     }
 
     setIsSelecting(false)
+    // const ele = e.currentTarget.getBoundingClientRect()
+    // console.info(
+    //   'Compare page vs e.currentTarget height',
+    //   pdf.height,
+    //   ele.height,
+    // )
 
-    const ele = e.currentTarget.getBoundingClientRect()
-    console.info(
-      'Compare page vs e.currentTarget height',
-      pdf.height,
-      ele.height,
-    )
-
-    const coord = calcCoordinates(domStart, getDOMxy(e), pdf.pages[page_number])
+    const coord = normalisePoints(area, pdf.pages[page_number])
     coord.page_number = page_number
+    coord.label = `${page_number}_`
 
     coord.selectedWords = getWordsInAreaFromPage(coord, pdf.pages[page_number])
-    coord.id = `${coord.pdfX},${coord.pdfY},${coord.width},${coord.height}`
+    coord.id = `${coord.left},${coord.bottom},${coord.right},${coord.top}`
+    console.log('normalisePoints pdfOverlay', coord)
 
-    // dispatch(addText({ page_number, text }))
+    setArea(() => [0, 0, 0, 0])
+
     dispatch(addBoundingBox(coord))
   }
 
@@ -103,12 +108,12 @@ const PdfOverlay = ({ page_number, editable = true }) => {
 
       {editable && isSelecting && (
         <SelectionBox
-          canDelete={false}
+          canDelete={editable}
           page={{
             width: pdf.pages[page_number].width,
             height: pdf.pages[page_number].height,
           }}
-          coords={calcCoordinates(domStart, domEnd, pdf.pages[page_number])}
+          coords={normalisePoints(area, pdf.pages[page_number])}
         />
       )}
     </div>

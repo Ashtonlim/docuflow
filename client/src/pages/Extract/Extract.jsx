@@ -3,98 +3,97 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import FileUploader from '@/components/FileUploader'
 import { useParams } from 'react-router'
-import { useGetTemplateQuery } from '@/features/template/templateSlice'
+import {
+  useGetTemplateQuery,
+  useGetPDFQuery,
+} from '@/features/template/templateSlice'
 import { reInitFile } from '@/features/pdf/pdfSlice'
-import PdfPage from '@/components/PdfPage'
-import PdfOverlay from '@/components/PdfOverlay'
-import { Document } from 'react-pdf'
-import SelectedWordsList from '@/components/SelectedWordsList'
-import Steps from '../../components/Steps'
+import Steps from '@/components/Steps'
+import Button from '@/components/Button'
+import FPSpinner from '@/components/FullPageSpinner'
 
-const options = {
-  cMapUrl: '/cmaps/',
-  standardFontDataUrl: '/standard_fonts/',
-  wasmUrl: '/wasm/',
-}
+import PdfDoc from '@/components/PdfDoc'
+
+// import PdfPage from '@/components/PdfPage'
+// import PdfOverlay from '@/components/PdfOverlay'
+// import { Document } from 'react-pdf'
+// import SelectedWordsList from '@/components/SelectedWordsList'
+// import { options } from '@/utils/constants'
 
 export default function Extract() {
-  const [file, setFile] = useState(null)
-  const [pages, setPages] = useState(0)
+  const [sourceFile, setSourceFile] = useState(null)
+  const [targetFile, setTargetFile] = useState(null)
 
   const pdf = useSelector((state) => state.pdf)
   const dispatch = useDispatch()
-  const { id } = useParams()
+  const { pdf_id, template_id } = useParams()
 
-  const { data: template, isError, isLoading } = useGetTemplateQuery(id)
+  const {
+    data: template,
+    isLoading: isTemplateLoading,
+    isError: isTemplateError,
+  } = useGetTemplateQuery(template_id)
+
+  const {
+    data: pdfSourceData,
+    isLoading: isPDFLoading,
+    isError: isPDFError,
+  } = useGetPDFQuery(pdf_id)
 
   useEffect(() => {
-    if (template) {
-      dispatch(reInitFile(template))
+    if (!template || !pdfSourceData) {
+      return
     }
-  }, [template])
+    dispatch(reInitFile(template))
+    setSourceFile(pdfSourceData.url)
+
+    return () => URL.revokeObjectURL(pdfSourceData.url) // prevents memory leak
+  }, [pdfSourceData])
+
+  if (isPDFLoading || isTemplateLoading) {
+    return <FPSpinner />
+  }
 
   const onFileChange = (event) => {
     const nextFile = event.target?.files?.[0]
     if (nextFile) {
-      setFile(nextFile)
+      setTargetFile(nextFile)
     }
   }
-  const onDocumentLoadSuccess = ({ numPages }) => {
-    setPages(numPages)
-  }
+
   return (
     <LayoutOne>
-      <div className='ruCol'>
-        <Steps at={0} />
-        <h4>Extract Fields from PDF </h4>
-        {template ? (
-          <div>{`Number of fields:  ${template.bounding_boxes.length}`}</div>
-        ) : (
-          ''
+      <div className='flex flex-col'>
+        <div className='flex w-full flex-row justify-center'>
+          <Steps at={0} />
+        </div>
+        <h4>Upload PDF</h4>
+        <span>Link preselected fields from the source PDF to a target PDF</span>
+        {template && (
+          <div>{`Number of fields: ${template.bounding_boxes.length}`}</div>
         )}
-
-        {!file ? (
-          <FileUploader
-            label='Upload PDF to extract from'
-            onFileChange={onFileChange}
-          />
+        {!targetFile ? (
+          <FileUploader label='Upload target PDF' onFileChange={onFileChange} />
         ) : (
-          <div className='ruCol mt-4'>
+          <div className='mt-4 flex flex-col'>
             <div>
               Current Step: Verify the text extraction is correct to move on to
             </div>
-
-            <button className='btn'>Extract and save fields</button>
+            <Button>Extract and save fields</Button>
           </div>
         )}
-
-        <div className='pdfviewer'>
-          <div className='pdfviewer__container'>
-            {file && (
-              <div className='pdfviewer__container__document'>
-                <Document
-                  key={file}
-                  file={file}
-                  onLoadSuccess={onDocumentLoadSuccess}
-                  options={options}
-                >
-                  {pages
-                    ? [...Array(pages).keys()].map((pageNumber) => (
-                        <div key={`pg_${pageNumber + 1}`} className='ruRow'>
-                          <div className='relative mt-3 inline-block'>
-                            <PdfPage page_number={pageNumber + 1} />
-                            <PdfOverlay
-                              page_number={pageNumber + 1}
-                              editable={false}
-                            />
-                          </div>
-                          <SelectedWordsList page_number={pageNumber + 1} />
-                        </div>
-                      ))
-                    : 0}
-                </Document>
-              </div>
+        <div className='mt-5 grid grid-cols-2 gap-3'>
+          <div>
+            {sourceFile && (
+              <PdfDoc
+                fileURL={sourceFile}
+                bounding_boxes={template.bounding_boxes}
+              />
             )}
+          </div>
+
+          <div>
+            {targetFile && <PdfDoc fileURL={targetFile} bounding_boxes={[]} />}
           </div>
         </div>
       </div>

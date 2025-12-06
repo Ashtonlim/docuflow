@@ -1,8 +1,8 @@
 """init tables
 
-Revision ID: 222f54f52c6f
+Revision ID: 5709d0c243bd
 Revises: 
-Create Date: 2025-09-13 18:32:36.372776
+Create Date: 2025-09-25 02:54:51.409645
 
 """
 from typing import Sequence, Union
@@ -13,7 +13,7 @@ import sqlmodel
 
 
 # revision identifiers, used by Alembic.
-revision: str = '222f54f52c6f'
+revision: str = '5709d0c243bd'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -35,14 +35,14 @@ def upgrade() -> None:
     sa.Column('file_name', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('file_path', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.Column('created_by', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['created_by'], ['users.id'], ),
+    sa.ForeignKeyConstraint(['created_by'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('file_path')
     )
     op.create_table('templates',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('pdf_id', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
-    sa.Column('created_by', sa.Integer(), nullable=True),
+    sa.Column('pdf_id', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('created_by', sa.Integer(), nullable=False),
     sa.Column('name', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('description', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('bounding_boxes', sa.JSON(), server_default=sa.text("'[]'"), nullable=False),
