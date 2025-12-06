@@ -1,38 +1,33 @@
 import { addBoundingBox } from '@/features/pdf/pdfSlice'
 import { useDispatch, useSelector } from 'react-redux'
-// import { getWordsInAreaFromPage, calcCoordinates } from '@/utils/pdfUtils'
 
 import { addPage } from '@/features/pdf/pdfSlice'
 import { Page } from 'react-pdf'
-import { getWordsInAreaFromPage, calcCoordinates } from '@/utils/pdfUtils'
+import { normalisePoints } from '@/utils/pdfUtils'
 
-const PDFPage = ({ page_number }) => {
+const PdfPage = ({ page_number }) => {
   const pdf = useSelector((state) => state.pdf)
   const dispatch = useDispatch()
+
   const onPageLoadSuccess = async (pageElement) => {
     const width = pageElement.width
     const height = pageElement.height
 
-    // PDF properties
-    pageElement.getAnnotations().then((annots) => {
-      annots.forEach((a) => {
-        if (a.subtype !== 'Widget') {
-          return
-          // console.log(a.fieldName, a.rect)
-        }
-        console.log(a.fieldName)
-        // const [left, btm, right, top] = a.rect
-        // console.log(left, btm, right, top, a)
+    // Extract all form fields
+    const annotations = await pageElement.getAnnotations()
 
-        const coord = calcCoordinates(a.rect, { width, height })
-        console.log('calcCoordinates', calcCoordinates)
+    annotations.forEach((annot) => {
+      if (annot.subtype !== 'Widget') {
+        return
+      }
 
-        coord.page_number = page_number
-        coord.label = `${page_number}_${a.fieldName}`
-        coord.selectedWords = a.fieldName
+      const coord = normalisePoints(annot.rect, { width, height })
 
-        dispatch(addBoundingBox(coord))
-      })
+      coord.page_number = page_number
+      coord.label = `${page_number}_${annot.fieldName}`
+      coord.selectedWords = annot.fieldName
+
+      dispatch(addBoundingBox(coord))
     })
 
     const words = (await pageElement.getTextContent()).items
@@ -47,4 +42,4 @@ const PDFPage = ({ page_number }) => {
   return <Page pageNumber={page_number} onLoadSuccess={onPageLoadSuccess} />
 }
 
-export default PDFPage
+export default PdfPage

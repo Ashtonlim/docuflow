@@ -3,9 +3,9 @@ import { useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import SelectionBox from '@/components/SelectionBox'
 
-import { getWordsInAreaFromPage, calcCoordinates } from '@/utils/pdfUtils'
+import { getWordsInAreaFromPage, normalisePoints } from '@/utils/pdfUtils'
 
-const PdfOverlay = ({ page_number, editable = true }) => {
+const PdfOverlay = ({ page_number, bounding_boxes, editable }) => {
   const dispatch = useDispatch()
   const pdf = useSelector((state) => state.pdf)
 
@@ -81,13 +81,13 @@ const PdfOverlay = ({ page_number, editable = true }) => {
     //   ele.height,
     // )
 
-    const coord = calcCoordinates(area, pdf.pages[page_number])
+    const coord = normalisePoints(area, pdf.pages[page_number])
     coord.page_number = page_number
     coord.label = `${page_number}_`
 
     coord.selectedWords = getWordsInAreaFromPage(coord, pdf.pages[page_number])
     coord.id = `${coord.left},${coord.bottom},${coord.right},${coord.top}`
-    console.log('calcCoordinates pdfOverlay', coord)
+    console.log('normalisePoints pdfOverlay', coord)
 
     setArea(() => [0, 0, 0, 0])
 
@@ -108,12 +108,12 @@ const PdfOverlay = ({ page_number, editable = true }) => {
 
       {editable && isSelecting && (
         <SelectionBox
-          canDelete={false}
+          canDelete={editable}
           page={{
             width: pdf.pages[page_number].width,
             height: pdf.pages[page_number].height,
           }}
-          coords={calcCoordinates(area, pdf.pages[page_number])}
+          coords={normalisePoints(area, pdf.pages[page_number])}
         />
       )}
     </div>

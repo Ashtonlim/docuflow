@@ -6,18 +6,19 @@ export const getWordsInAreaFromPage = (area, pageData) => {
     return []
   }
 
+  console.log(pageData)
   const { words, width, height } = pageData
 
   const found = words
     ?.filter((word) => {
-      let x = word.transform[4] / width
-      let y = word.transform[5] / height
+      const x = word.transform[4] / width
+      const y = word.transform[5] / height
 
       // word starting pos inside area
-      let xInArea = left <= x && x <= right
+      const xInArea = left <= x && x <= right
 
       // opposite directions as pdf reads yAxis from bottom to top. i.e. Bottom = 0px, top = heightOfPdf
-      let yInArea = top >= y && y >= bottom
+      const yInArea = top >= y && y >= bottom
 
       return xInArea && yInArea
     })
@@ -29,7 +30,7 @@ export const getWordsInAreaFromPage = (area, pageData) => {
   return found
 }
 
-export const calcCoordinates = (area, { width, height }) => {
+export const normalisePoints = (area, width, height) => {
   const [left, bottom, right, top] = area
   return {
     left: left / width,
@@ -41,7 +42,7 @@ export const calcCoordinates = (area, { width, height }) => {
 
 // // get top left point
 // // pdf y coordinates start from btm. pdfy = pdfHeight - YRelativeToPDF
-// export const calcCoordinates = (domStart, domEnd, pageData) => {
+// export const normalisePoints = (domStart, domEnd, pageData) => {
 //   const { width, height } = pageData
 //   const [firstClickX, firstClickY] = domStart
 //   const [lastClickX, lastClickY] = domEnd
