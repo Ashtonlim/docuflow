@@ -23,8 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 
-/dist
-/pdfs
 
 
 .venv
@@ -32,3 +30,9 @@ __pycache__/
 saved_migrations
 minio.exe
 mc.exe
+
+.env
+env
+hide
+/dist
+/pdfs
