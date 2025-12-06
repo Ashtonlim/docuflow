@@ -1,8 +1,13 @@
 name: Release
 on:
+  push:
+    branches:
+      - main
+
   pull_request:
     branches:
-      - main # or main
+      - main
+
   workflow_dispatch:
 
 permissions:
@@ -28,7 +33,7 @@ jobs:
         with:
           node-version: "lts/*"
 
-      - name: Setup Node.js
+      - name: Setup Pnpm
         uses: pnpm/action-setup@v4
 
       - name: Install dependencies
@@ -37,4 +42,9 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: pnpm exec semantic-release
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            pnpm exec semantic-release --dry-run
+          else
+            pnpm exec semantic-release
+          fi
