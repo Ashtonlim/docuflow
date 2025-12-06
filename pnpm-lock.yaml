@@ -26,6 +26,9 @@ importers:
       '@semantic-release/git':
         specifier: ^10.0.1
         version: 10.0.1(semantic-release@25.0.2(typescript@5.9.3))
+      '@semantic-release/github':
+        specifier: ^12.0.2
+        version: 12.0.2(semantic-release@25.0.2(typescript@5.9.3))
       conventional-changelog-atom:
         specifier: ^5.0.0
         version: 5.0.0
