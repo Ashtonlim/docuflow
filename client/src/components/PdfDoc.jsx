@@ -2,17 +2,49 @@ import PdfPage from '@/components/PdfPage'
 import PdfOverlay from '@/components/PdfOverlay'
 import { Document } from 'react-pdf'
 import { options } from '@/utils/constants'
-import { useState } from 'react'
-
+import { useState, useEffect } from 'react'
+import {
+  useGetTemplateQuery,
+  useGetPDFQuery,
+} from '@/features/template/templateSlice'
 import SelectedWordsList from '@/components/SelectedWordsList'
+import Spinner from '@/components/Spinner'
+import { reInitFile } from '@/features/pdf/pdfSlice'
+import { useDispatch, useSelector } from 'react-redux'
 
 const PdfDoc = ({
-  fileURL,
-  bounding_boxes,
+  pdf_id,
+  template_id,
   editable = false,
   showSelectedWords = false,
 }) => {
-  const [pageCount, setPageCount] = useState(null)
+  const [pageCount, setPageCount] = useState(0)
+  const pdf = useSelector((state) => state.pdf)
+  const dispatch = useDispatch()
+  const [fileURL, setFileURL] = useState('')
+
+  const {
+    data: template,
+    isLoading: isTemplateLoading,
+    isError: isTemplateError,
+  } = useGetTemplateQuery(template_id)
+
+  const {
+    data: pdfSourceData,
+    isLoading: isPDFLoading,
+    isError: isPDFError,
+  } = useGetPDFQuery(pdf_id)
+
+  useEffect(() => {
+    if (!template || !pdfSourceData) {
+      return
+    }
+    console.log('this is pdf source data', pdfSourceData)
+    dispatch(reInitFile(template))
+    setFileURL(pdfSourceData.url)
+
+    return () => URL.revokeObjectURL(pdfSourceData.url) // prevents memory leak
+  }, [pdfSourceData])
 
   const onLoadSuccess = ({ numPages }) => {
     setPageCount(numPages)
@@ -22,34 +54,48 @@ const PdfDoc = ({
     console.error(`Error to load PDF: ${error.message}`)
   }
 
+  if (isPDFLoading || isTemplateLoading) {
+    return <Spinner />
+  }
+
   return (
-    <Document
-      key={fileURL}
-      file={fileURL}
-      onLoadSuccess={onLoadSuccess}
-      onLoadError={onLoadError}
-      options={options}
-    >
-      {pageCount ? (
-        [...Array(pageCount).keys()].map((pageNumber) => (
-          <div key={`pg_${pageNumber + 1}`} className='flex flex-row'>
-            <div className='relative mb-3 inline-block'>
-              <PdfPage page_number={pageNumber + 1} />
-              <PdfOverlay
-                page_number={pageNumber + 1}
-                editable={editable}
-                bounding_boxes={bounding_boxes}
-              />
-            </div>
-            {showSelectedWords && (
-              <SelectedWordsList page_number={pageNumber + 1} />
-            )}
-          </div>
-        ))
-      ) : (
-        <div>0 pages found in PDF</div>
+    <div>
+      {template && (
+        <div>{`Number of fields: ${template.bounding_boxes.length}`}</div>
       )}
-    </Document>
+
+      <Document
+        key={fileURL}
+        file={fileURL}
+        onLoadSuccess={onLoadSuccess}
+        onLoadError={onLoadError}
+        options={options}
+      >
+        {pageCount > 0 ? (
+          [...Array(pageCount).keys()].map((pageNumber) => (
+            <div key={`pg_${pageNumber + 1}`} className='flex flex-row'>
+              <div className='relative mb-3 inline-block'>
+                <PdfPage pdf_id={pdf_id} page_number={pageNumber + 1} />
+                <PdfOverlay
+                  pdf_id={pdf_id}
+                  page_number={pageNumber + 1}
+                  editable={editable}
+                  bounding_boxes={template.bounding_boxes}
+                />
+              </div>
+              {showSelectedWords && (
+                <SelectedWordsList
+                  pdf_id={pdf_id}
+                  page_number={pageNumber + 1}
+                />
+              )}
+            </div>
+          ))
+        ) : (
+          <div>0 pages found in PDF</div>
+        )}
+      </Document>
+    </div>
   )
 }
 
