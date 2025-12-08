@@ -5,7 +5,7 @@ import { addPage } from '@/features/pdf/pdfSlice'
 import { Page } from 'react-pdf'
 import { normalisePoints } from '@/utils/pdfUtils'
 
-const PdfPage = ({ page_number }) => {
+const PdfPage = ({ pdf_id, page_number }) => {
   const pdf = useSelector((state) => state.pdf)
   const dispatch = useDispatch()
 
@@ -33,6 +33,7 @@ const PdfPage = ({ page_number }) => {
     const words = (await pageElement.getTextContent()).items
     dispatch(
       addPage({
+        pdf_id,
         page_number,
         page: { width, height, words },
       }),

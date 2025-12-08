@@ -64,6 +64,8 @@ export default function TemplateManager() {
     return <FPSpinner />
   }
 
+  console.log('pdf state', pdf)
+
   return (
     <LayoutOne>
       <div className='pdfviewer'>

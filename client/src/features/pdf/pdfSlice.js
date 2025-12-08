@@ -9,6 +9,8 @@ const initialState = {
   bounding_boxes: [],
   pages: {},
   curSelectedBb: null,
+  source: null,
+  target: null,
 }
 
 export const uploadPDF = createAsyncThunk(
@@ -53,9 +55,20 @@ export const pdfSlice = createSlice({
     },
 
     reInitFile: (state, action) => {
-      console.log('new file', action.payload)
       // const { name, size, type, bounding_boxes, pdf_id }
       const data = action.payload
+
+      // make backwards compatible - do not break
+      state[data?.pdf_id] = {
+        name: '',
+        size: '',
+        type: '',
+        status: 'idle',
+        bounding_boxes: [],
+        pages: {},
+        ...data,
+      }
+
       state.name = data?.name || ''
       state.size = data?.size || ''
       state.type = data?.type || ''
@@ -74,15 +87,23 @@ export const pdfSlice = createSlice({
     addPage: (state, action) => {
       const { page_number, page } = action.payload
       state.pages[page_number] = page
+      state[action.payload?.pdf_id].pages[page_number] = page
     },
 
     addBoundingBox: (state, action) => {
       state.bounding_boxes.push(action.payload)
+      state[action.payload?.pdf_id]?.bounding_boxes(
+        action.payload?.bounding_boxes,
+      )
     },
     delCoordFromPage: (state, action) => {
       state.bounding_boxes = state.bounding_boxes.filter(
         (cur) => cur.id !== action.payload,
       )
+
+      state[action.payload?.pdf_id].bounding_boxes = state[
+        action.payload?.pdf_id
+      ]?.bounding_boxes.filter((cur) => cur.id !== action.payload)
     },
     updateLabel: (state, action) => {
       const { value, id } = action.payload
@@ -91,9 +112,22 @@ export const pdfSlice = createSlice({
       if (itemToUpdate) {
         itemToUpdate.label = value
       }
+
+      const itemToUpdate2 = state[action.payload?.pdf_id]?.bounding_boxes.find(
+        (coord) => coord.id === id,
+      )
+      if (itemToUpdate2) {
+        itemToUpdate2.label = value
+      }
     },
     setClickedElement: (state, action) => {
       state.curSelectedBb = action.payload
+    },
+    setSourceFile: (state, action) => {
+      state.source = action.payload
+    },
+    setTargetFile: (state, action) => {
+      state.target = action.payload
     },
   },
   extraReducers: (builder) => {
@@ -117,6 +151,8 @@ export const {
   delCoordFromPage,
   updateLabel,
   setClickedElement,
+  setSourceFile,
+  setTargetFile,
 } = pdfSlice.actions
 
 export default pdfSlice.reducer
