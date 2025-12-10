@@ -6,7 +6,6 @@ export const getWordsInAreaFromPage = (area, pageData) => {
     return []
   }
 
-  console.log(pageData)
   const { words, width, height } = pageData
 
   const found = words

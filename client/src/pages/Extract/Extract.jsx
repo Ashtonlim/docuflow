@@ -1,19 +1,19 @@
-import LayoutOne from '@/components/LayoutOne'
-import { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import FileUploader from '@/components/FileUploader'
+import { useState } from 'react'
 import { useParams } from 'react-router'
 
 import Steps from '@/components/Steps'
 import Button from '@/components/Button'
-
 import PdfDoc from '@/components/PdfDoc'
+import FileUploader from '@/components/FileUploader'
+import LayoutOne from '@/components/LayoutOne'
+
+import { uploadPDF } from '@/features/pdf/pdfSlice'
+import { useDispatch } from 'react-redux'
 
 export default function Extract() {
   const [targetFile, setTargetFile] = useState(null)
-
-  const pdf = useSelector((state) => state.pdf)
   const { pdf_id, template_id } = useParams()
+  const dispatch = useDispatch()
 
   const onFileChange = (event) => {
     const nextFile = event.target?.files?.[0]
@@ -47,7 +47,11 @@ export default function Extract() {
           </div>
 
           <div>
-            {targetFile && <PdfDoc fileURL={targetFile} bounding_boxes={[]} />}
+            {targetFile ? (
+              <PdfDoc pdfURL={targetFile} />
+            ) : (
+              <div>Upload a target PDF file to Link input fields.</div>
+            )}
           </div>
         </div>
       </div>

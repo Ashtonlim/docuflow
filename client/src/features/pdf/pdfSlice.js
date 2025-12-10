@@ -2,15 +2,17 @@ import config from '@/config'
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
-  name: '',
-  size: '',
-  type: '',
   status: 'idle',
-  bounding_boxes: [],
-  pages: {},
   curSelectedBb: null,
-  source: null,
-  target: null,
+  0: {
+    name: '',
+    size: '',
+    type: '',
+    status: 'idle',
+    bounding_boxes: [],
+    pages: {},
+    curSelectedBb: null,
+  },
 }
 
 export const uploadPDF = createAsyncThunk(
@@ -36,13 +38,6 @@ export const pdfSlice = createSlice({
   name: 'pdf',
   initialState,
   reducers: {
-    initFile: (state, action) => {
-      state.pages = action.payload.numPages
-      const { name, size, type } = action.payload
-      state.name = name
-      state.size = size
-      state.type = type
-    },
     resetFile: (state, action) => {
       state = {
         name: '',
@@ -56,10 +51,10 @@ export const pdfSlice = createSlice({
 
     reInitFile: (state, action) => {
       // const { name, size, type, bounding_boxes, pdf_id }
-      const data = action.payload
-
+      const { pdf_id, data } = action.payload
+      console.log(data)
       // make backwards compatible - do not break
-      state[data?.pdf_id] = {
+      state[pdf_id] = {
         name: '',
         size: '',
         type: '',
@@ -68,12 +63,6 @@ export const pdfSlice = createSlice({
         pages: {},
         ...data,
       }
-
-      state.name = data?.name || ''
-      state.size = data?.size || ''
-      state.type = data?.type || ''
-      state.bounding_boxes = data?.bounding_boxes || []
-      state.pdf_id = data?.pdf_id || ''
     },
     addText: (state, action) => {
       // const { page_number, text } = action.payload
@@ -85,21 +74,29 @@ export const pdfSlice = createSlice({
       // }
     },
     addPage: (state, action) => {
-      const { page_number, page } = action.payload
-      state.pages[page_number] = page
-      state[action.payload?.pdf_id].pages[page_number] = page
+      const { page_number, page, pdf_id } = action.payload
+      // console.log(ad)
+      if (pdf_id) {
+        console.log('handle add page ', page_number)
+        state[pdf_id].pages[page_number] = page
+      }
     },
 
     addBoundingBox: (state, action) => {
-      state.bounding_boxes.push(action.payload)
-      state[action.payload?.pdf_id]?.bounding_boxes(
-        action.payload?.bounding_boxes,
-      )
+      const { coord, pdf_id } = action.payload
+      // state.bounding_boxes.push(coord)
+      if (pdf_id) {
+        state[pdf_id].bounding_boxes.push(coord)
+      }
+    },
+    setBoundingBox: (state, action) => {
+      const { boxes, pdf_id } = action.payload
+      state[pdf_id].bounding_boxes.push(...boxes)
     },
     delCoordFromPage: (state, action) => {
-      state.bounding_boxes = state.bounding_boxes.filter(
-        (cur) => cur.id !== action.payload,
-      )
+      // state.bounding_boxes = state.bounding_boxes.filter(
+      //   (cur) => cur.id !== action.payload,
+      // )
 
       state[action.payload?.pdf_id].bounding_boxes = state[
         action.payload?.pdf_id
@@ -108,16 +105,11 @@ export const pdfSlice = createSlice({
     updateLabel: (state, action) => {
       const { value, id } = action.payload
 
-      const itemToUpdate = state.bounding_boxes.find((coord) => coord.id === id)
-      if (itemToUpdate) {
-        itemToUpdate.label = value
-      }
-
-      const itemToUpdate2 = state[action.payload?.pdf_id]?.bounding_boxes.find(
+      const itemToUpdate = state[action.payload?.pdf_id]?.bounding_boxes.find(
         (coord) => coord.id === id,
       )
-      if (itemToUpdate2) {
-        itemToUpdate2.label = value
+      if (itemToUpdate) {
+        itemToUpdate.label = value
       }
     },
     setClickedElement: (state, action) => {
@@ -148,6 +140,7 @@ export const {
   addPage,
   addText,
   addBoundingBox,
+  setBoundingBox,
   delCoordFromPage,
   updateLabel,
   setClickedElement,

@@ -1,4 +1,4 @@
-import { addBoundingBox } from '@/features/pdf/pdfSlice'
+import { addBoundingBox, setBoundingBox } from '@/features/pdf/pdfSlice'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { addPage } from '@/features/pdf/pdfSlice'
@@ -8,27 +8,26 @@ import { normalisePoints } from '@/utils/pdfUtils'
 const PdfPage = ({ pdf_id, page_number }) => {
   const pdf = useSelector((state) => state.pdf)
   const dispatch = useDispatch()
-
   const onPageLoadSuccess = async (pageElement) => {
-    const width = pageElement.width
-    const height = pageElement.height
+    const { width, height } = pageElement
 
     // Extract all form fields
     const annotations = await pageElement.getAnnotations()
 
-    annotations.forEach((annot) => {
+    const boxes = []
+    for (let i = 0; i < annotations.length; i++) {
+      let annot = annotations[i]
       if (annot.subtype !== 'Widget') {
-        return
+        continue
       }
 
-      const coord = normalisePoints(annot.rect, { width, height })
-
+      const coord = normalisePoints(annot.rect, width, height)
       coord.page_number = page_number
       coord.label = `${page_number}_${annot.fieldName}`
       coord.selectedWords = annot.fieldName
-
-      dispatch(addBoundingBox(coord))
-    })
+      boxes.push(coord)
+    }
+    dispatch(setBoundingBox({ pdf_id, boxes }))
 
     const words = (await pageElement.getTextContent()).items
     dispatch(
@@ -44,3 +43,17 @@ const PdfPage = ({ pdf_id, page_number }) => {
 }
 
 export default PdfPage
+
+// annotations.forEach((annot) => {
+//   if (annot.subtype !== 'Widget') {
+//     return
+//   }
+
+//   const coord = normalisePoints(annot.rect, { width, height })
+
+//   coord.page_number = page_number
+//   coord.label = `${page_number}_${annot.fieldName}`
+//   coord.selectedWords = annot.fieldName
+
+//   dispatch(addBoundingBox({ pdf_id, coord }))
+// })

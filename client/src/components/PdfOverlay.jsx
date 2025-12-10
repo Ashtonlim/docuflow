@@ -5,7 +5,7 @@ import SelectionBox from '@/components/SelectionBox'
 
 import { getWordsInAreaFromPage, normalisePoints } from '@/utils/pdfUtils'
 
-const PdfOverlay = ({ pdf_id, page_number, bounding_boxes, editable }) => {
+const PdfOverlay = ({ pdf_id, page_number, editable }) => {
   const dispatch = useDispatch()
   const pdf = useSelector((state) => state.pdf)
 
@@ -13,16 +13,19 @@ const PdfOverlay = ({ pdf_id, page_number, bounding_boxes, editable }) => {
   const [area, setArea] = useState([0, 0, 0, 0])
   const [isSelecting, setIsSelecting] = useState(false)
 
+  // console.log('latest state of pdf', pdf[pdf_id])
+
   // ✅ Memoize coordinate rendering
   const renderedCoords = useMemo(
     () =>
-      pdf.pages[page_number]
-        ? pdf.bounding_boxes
+      pdf[pdf_id].pages[page_number]
+        ? pdf[pdf_id].bounding_boxes
             ?.filter((box) => box.page_number === page_number)
-            ?.map((coords) => (
+            ?.map((coords, i) => (
               <SelectionBox
-                key={coords.id}
+                key={i}
                 coords={coords}
+                pdf_id={pdf_id}
                 page_number={page_number}
                 page={{
                   width: pdf.pages[page_number].width,
@@ -32,7 +35,7 @@ const PdfOverlay = ({ pdf_id, page_number, bounding_boxes, editable }) => {
               />
             ))
         : [],
-    [pdf.bounding_boxes, pdf.pages[page_number]],
+    [pdf[pdf_id].bounding_boxes, pdf[pdf_id].pages[page_number]],
   )
 
   const getDOMxy = (e) => {
@@ -88,11 +91,11 @@ const PdfOverlay = ({ pdf_id, page_number, bounding_boxes, editable }) => {
 
     coord.selectedWords = getWordsInAreaFromPage(coord, pdf.pages[page_number])
     coord.id = `${coord.left},${coord.bottom},${coord.right},${coord.top}`
-    console.log('normalisePoints pdfOverlay', coord)
 
     setArea(() => [0, 0, 0, 0])
 
-    dispatch(addBoundingBox(coord))
+    // dispatch(addBoundingBox(coord))
+    dispatch(addBoundingBox({ pdf_id, coord }))
   }
 
   const doNothing = () => {}

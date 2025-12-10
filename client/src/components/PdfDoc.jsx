@@ -7,19 +7,24 @@ import {
   useGetTemplateQuery,
   useGetPDFQuery,
 } from '@/features/template/templateSlice'
+
 import SelectedWordsList from '@/components/SelectedWordsList'
 import Spinner from '@/components/Spinner'
 import { reInitFile } from '@/features/pdf/pdfSlice'
 import { useDispatch, useSelector } from 'react-redux'
 
+// REVIEW: Might not be a good solution but works
+// temporary PDFs are stored as 0 in redux state
+const temp = 0
+
 const PdfDoc = ({
-  pdf_id,
-  template_id,
+  pdf_id = temp,
+  template_id = temp,
+  pdfURL = null,
   editable = false,
   showSelectedWords = false,
 }) => {
   const [pageCount, setPageCount] = useState(0)
-  const pdf = useSelector((state) => state.pdf)
   const dispatch = useDispatch()
   const [fileURL, setFileURL] = useState('')
 
@@ -27,24 +32,28 @@ const PdfDoc = ({
     data: template,
     isLoading: isTemplateLoading,
     isError: isTemplateError,
-  } = useGetTemplateQuery(template_id)
+  } = useGetTemplateQuery(template_id, { skip: template_id === temp })
 
   const {
     data: pdfSourceData,
     isLoading: isPDFLoading,
     isError: isPDFError,
-  } = useGetPDFQuery(pdf_id)
+  } = useGetPDFQuery(pdf_id, { skip: pdf_id === temp })
 
   useEffect(() => {
-    if (!template || !pdfSourceData) {
-      return
+    if (template) {
+      dispatch(reInitFile({ pdf_id, data: template }))
     }
-    console.log('this is pdf source data', pdfSourceData)
-    dispatch(reInitFile(template))
-    setFileURL(pdfSourceData.url)
 
-    return () => URL.revokeObjectURL(pdfSourceData.url) // prevents memory leak
-  }, [pdfSourceData])
+    if (pdfSourceData) {
+      setFileURL(pdfSourceData.url)
+      return () => URL.revokeObjectURL(pdfSourceData.url) // prevents memory leak
+    }
+
+    if (pdfURL) {
+      setFileURL(pdfURL)
+    }
+  }, [pdfSourceData, pdfURL])
 
   const onLoadSuccess = ({ numPages }) => {
     setPageCount(numPages)
@@ -80,7 +89,7 @@ const PdfDoc = ({
                   pdf_id={pdf_id}
                   page_number={pageNumber + 1}
                   editable={editable}
-                  bounding_boxes={template.bounding_boxes}
+                  bounding_boxes={template?.bounding_boxes || []}
                 />
               </div>
               {showSelectedWords && (

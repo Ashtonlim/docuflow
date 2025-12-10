@@ -40,7 +40,7 @@ export default function TemplateManager() {
     if (!pdfData) {
       return
     }
-    dispatch(reInitFile({ pdf_id }))
+    dispatch(reInitFile({ pdf_id, data: pdfData }))
 
     setPdfUrl(pdfData.url)
   }, [pdfData])
@@ -63,8 +63,6 @@ export default function TemplateManager() {
   if (isPdfLoading) {
     return <FPSpinner />
   }
-
-  console.log('pdf state', pdf)
 
   return (
     <LayoutOne>
