@@ -1,3 +1,16 @@
+# [1.1.0](https://github.com/Ashtonlim/docuflow/compare/v1.0.0...v1.1.0) (2025-12-11)
+
+
+### Bug Fixes
+
+* falsy prevented page data adding to state ([4172499](https://github.com/Ashtonlim/docuflow/commit/4172499f7a1036ef8b7da4892fe792835be9b789))
+* split source and target bounding boxes ([268ee49](https://github.com/Ashtonlim/docuflow/commit/268ee4908dc24c9be3f5fc5cc77f582e8f34b527))
+
+
+### Features
+
+* show selected text above selection box for verification ([a01dd7c](https://github.com/Ashtonlim/docuflow/commit/a01dd7cf058a545620f71e169c2683c41395d7c9))
+
 # 1.0.0 (2025-12-06)
 
 ### Bug Fixes
