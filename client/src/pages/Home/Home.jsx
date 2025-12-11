@@ -1,12 +1,10 @@
 import LayoutOne from '@/components/LayoutOne'
 import { uploadPDF } from '@/features/pdf/pdfSlice'
-import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router'
 import FileUploader from '@/components/FileUploader'
 
 export default function Home() {
-  const pdf = useSelector((state) => state.pdf)
   const dispatch = useDispatch()
   const navigate = useNavigate()
 

@@ -12,12 +12,9 @@ const SelectedWordsList = ({ page_number }) => {
       {pdf.bounding_boxes
         .filter((box) => box.page_number === page_number)
         .map((box, i) => {
-          const { label, id, selectedWords } = box
+          const { label, id } = box
 
-          // TODO: potentially need to add words into redux state? Review
-          // REVIEW: why am i doing getWordsInAreaFromPage()? the box should alr include thw words
-          let text =
-            selectedWords || getWordsInAreaFromPage(box, pdf.pages[page_number])
+          let text = getWordsInAreaFromPage(box, pdf.pages[page_number])
 
           return (
             <div key={id}>

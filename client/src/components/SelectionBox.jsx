@@ -1,24 +1,31 @@
 import { delCoordFromPage, setClickedElement } from '@/features/pdf/pdfSlice'
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { getWordsInAreaFromPage } from '@/utils/pdfUtils'
 
 const bg1 = 'rgba(70, 200, 80, 0.55)'
 const bg2 = 'rgba(59, 130, 246, 0.2)'
 
-const SelectionBox = ({ coords, page, canDelete = false }) => {
+const SelectionBox = ({
+  coords,
+  pdf_id,
+  page,
+  page_number,
+  canDelete = false,
+}) => {
   const [color, setColor] = useState(true)
   const pdf = useSelector((state) => state.pdf)
-
+  const text = getWordsInAreaFromPage(coords, pdf[pdf_id].pages[page_number])
   const dispatch = useDispatch()
 
-  const toggleClick = () => {
+  const toggleClick = (e) => {
     setColor(!color)
     dispatch(setClickedElement(coords.id))
   }
 
   return (
     <div
-      className='absolute z-20'
+      className='absolute z-20 cursor-pointer'
       style={{
         position: 'absolute',
         border: `2px dashed #3b82f6`,
@@ -33,6 +40,11 @@ const SelectionBox = ({ coords, page, canDelete = false }) => {
       }}
       onClick={toggleClick}
     >
+      {text && (
+        <div className='absolute -top-3 z-10 cursor-pointer rounded-full border border-gray-600 bg-white px-1 py-0 text-xs'>
+          {text}
+        </div>
+      )}
       {canDelete && (
         <button
           className='absolute -top-3 -right-3 z-30 cursor-pointer rounded-full border border-gray-600 bg-white px-1 py-0 text-sm!'

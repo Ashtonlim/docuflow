@@ -6,7 +6,6 @@ export const getWordsInAreaFromPage = (area, pageData) => {
     return []
   }
 
-  console.log(pageData)
   const { words, width, height } = pageData
 
   const found = words
@@ -39,25 +38,3 @@ export const normalisePoints = (area, width, height) => {
     top: top / height,
   }
 }
-
-// // get top left point
-// // pdf y coordinates start from btm. pdfy = pdfHeight - YRelativeToPDF
-// export const normalisePoints = (domStart, domEnd, pageData) => {
-//   const { width, height } = pageData
-//   const [firstClickX, firstClickY] = domStart
-//   const [lastClickX, lastClickY] = domEnd
-//   const topLeftX = Math.min(firstClickX, lastClickX)
-//   const topLeftY = Math.min(firstClickY, lastClickY)
-
-//   // to convert domy into pdfy -> pdfHeight - domy (topLeftY)
-//   // right at btm of page, if pdfHeight = 500, then domy = 500
-//   // therefore pdfy = 500 - 500 = 0px
-//   return {
-//     domY: 0,
-//     pdfX: topLeftX / width,
-//     pdfY: (height - topLeftY) / height,
-//     width: Math.abs(firstClickX - lastClickX) / width,
-//     height: Math.abs(firstClickY - lastClickY) / height,
-//     label_name: 'label name',
-//   }
-// }
