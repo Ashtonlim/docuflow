@@ -5,7 +5,7 @@ import SelectionBox from '@/components/SelectionBox'
 
 import { getWordsInAreaFromPage, normalisePoints } from '@/utils/pdfUtils'
 
-const PdfOverlay = ({ page_number, bounding_boxes, editable }) => {
+const PdfOverlay = ({ pdf_id, page_number, editable }) => {
   const dispatch = useDispatch()
   const pdf = useSelector((state) => state.pdf)
 
@@ -16,22 +16,24 @@ const PdfOverlay = ({ page_number, bounding_boxes, editable }) => {
   // ✅ Memoize coordinate rendering
   const renderedCoords = useMemo(
     () =>
-      pdf.pages[page_number]
-        ? pdf.bounding_boxes
+      pdf[pdf_id].pages[page_number]
+        ? pdf[pdf_id].bounding_boxes
             ?.filter((box) => box.page_number === page_number)
-            ?.map((coords) => (
+            ?.map((coords, i) => (
               <SelectionBox
-                canDelete={editable}
-                key={coords.id}
-                page={{
-                  width: pdf.pages[page_number].width,
-                  height: pdf.pages[page_number].height,
-                }}
+                key={i}
                 coords={coords}
+                pdf_id={pdf_id}
+                page_number={page_number}
+                page={{
+                  width: pdf[pdf_id].pages[page_number].width,
+                  height: pdf[pdf_id].pages[page_number].height,
+                }}
+                canDelete={editable}
               />
             ))
         : [],
-    [pdf.bounding_boxes, pdf.pages[page_number]],
+    [pdf[pdf_id].bounding_boxes, pdf[pdf_id].pages],
   )
 
   const getDOMxy = (e) => {
@@ -41,7 +43,7 @@ const PdfOverlay = ({ page_number, bounding_boxes, editable }) => {
 
     const rect = e.currentTarget.getBoundingClientRect()
     const x = e.clientX - rect.left
-    const y = pdf.pages[page_number].height - (e.clientY - rect.top)
+    const y = pdf[pdf_id].pages[page_number].height - (e.clientY - rect.top)
     return [x, y]
   }
 
@@ -77,21 +79,24 @@ const PdfOverlay = ({ page_number, bounding_boxes, editable }) => {
     // const ele = e.currentTarget.getBoundingClientRect()
     // console.info(
     //   'Compare page vs e.currentTarget height',
-    //   pdf.height,
+    //   pdf[pdf_id].height,
     //   ele.height,
     // )
 
-    const coord = normalisePoints(area, pdf.pages[page_number])
+    const coord = normalisePoints(area, pdf[pdf_id].pages[page_number])
     coord.page_number = page_number
     coord.label = `${page_number}_`
 
-    coord.selectedWords = getWordsInAreaFromPage(coord, pdf.pages[page_number])
+    coord.selectedWords = getWordsInAreaFromPage(
+      coord,
+      pdf[pdf_id].pages[page_number],
+    )
     coord.id = `${coord.left},${coord.bottom},${coord.right},${coord.top}`
-    console.log('normalisePoints pdfOverlay', coord)
 
     setArea(() => [0, 0, 0, 0])
 
-    dispatch(addBoundingBox(coord))
+    // dispatch(addBoundingBox(coord))
+    dispatch(addBoundingBox({ pdf_id, coord }))
   }
 
   const doNothing = () => {}
@@ -110,10 +115,10 @@ const PdfOverlay = ({ page_number, bounding_boxes, editable }) => {
         <SelectionBox
           canDelete={editable}
           page={{
-            width: pdf.pages[page_number].width,
-            height: pdf.pages[page_number].height,
+            width: pdf[pdf_id].pages[page_number].width,
+            height: pdf[pdf_id].pages[page_number].height,
           }}
-          coords={normalisePoints(area, pdf.pages[page_number])}
+          coords={normalisePoints(area, pdf[pdf_id].pages[page_number])}
         />
       )}
     </div>
