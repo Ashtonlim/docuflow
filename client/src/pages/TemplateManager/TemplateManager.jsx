@@ -54,7 +54,7 @@ export default function TemplateManager() {
       file_id: id,
       created_by: 1,
       name: templateName,
-      bounding_boxes: pdf.bounding_boxes,
+      bounding_boxes: pdf[pdf_id].bounding_boxes,
       description: 'test',
     }
     createTemplate(payload)

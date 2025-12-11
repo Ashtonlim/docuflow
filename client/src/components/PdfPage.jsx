@@ -1,15 +1,24 @@
-import { addBoundingBox, setBoundingBox } from '@/features/pdf/pdfSlice'
+import { addPage, setBoundingBox } from '@/features/pdf/pdfSlice'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { addPage } from '@/features/pdf/pdfSlice'
 import { Page } from 'react-pdf'
 import { normalisePoints } from '@/utils/pdfUtils'
 
 const PdfPage = ({ pdf_id, page_number }) => {
   const pdf = useSelector((state) => state.pdf)
   const dispatch = useDispatch()
+
   const onPageLoadSuccess = async (pageElement) => {
     const { width, height } = pageElement
+
+    const words = (await pageElement.getTextContent()).items
+    dispatch(
+      addPage({
+        pdf_id,
+        page_number,
+        page: { width, height, words },
+      }),
+    )
 
     // Extract all form fields
     const annotations = await pageElement.getAnnotations()
@@ -28,15 +37,6 @@ const PdfPage = ({ pdf_id, page_number }) => {
       boxes.push(coord)
     }
     dispatch(setBoundingBox({ pdf_id, boxes }))
-
-    const words = (await pageElement.getTextContent()).items
-    dispatch(
-      addPage({
-        pdf_id,
-        page_number,
-        page: { width, height, words },
-      }),
-    )
   }
 
   return <Page pageNumber={page_number} onLoadSuccess={onPageLoadSuccess} />

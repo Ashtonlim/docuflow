@@ -52,7 +52,6 @@ export const pdfSlice = createSlice({
     reInitFile: (state, action) => {
       // const { name, size, type, bounding_boxes, pdf_id }
       const { pdf_id, data } = action.payload
-      console.log(data)
       // make backwards compatible - do not break
       state[pdf_id] = {
         name: '',
@@ -74,21 +73,17 @@ export const pdfSlice = createSlice({
       // }
     },
     addPage: (state, action) => {
-      const { page_number, page, pdf_id } = action.payload
-      // console.log(ad)
-      if (pdf_id) {
-        console.log('handle add page ', page_number)
-        state[pdf_id].pages[page_number] = page
-      }
+      const { pdf_id, page_number, page } = action.payload
+      state[pdf_id].pages[page_number] = page
     },
 
     addBoundingBox: (state, action) => {
       const { coord, pdf_id } = action.payload
-      // state.bounding_boxes.push(coord)
       if (pdf_id) {
         state[pdf_id].bounding_boxes.push(coord)
       }
     },
+
     setBoundingBox: (state, action) => {
       const { boxes, pdf_id } = action.payload
       state[pdf_id].bounding_boxes.push(...boxes)
