@@ -10,9 +10,9 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "bp": "npm run build & npm run preview",
+    "bp": "pnpm run build & pnpm run preview",
     "noBuildDeploy": "gh-pages -d dist",
-    "deploy": "npm run build & gh-pages -d dist"
+    "deploy": "pnpm run build & gh-pages -d dist"
   },
   "keywords": [],
   "author": "",
