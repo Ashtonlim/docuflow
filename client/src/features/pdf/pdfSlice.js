@@ -3,7 +3,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
   status: 'idle',
-  curSelectedBb: null,
+  curSelectedBox: null,
   0: {
     name: '',
     size: '',
@@ -11,7 +11,7 @@ const initialState = {
     status: 'idle',
     bounding_boxes: [],
     pages: {},
-    curSelectedBb: null,
+    curSelectedBox: null,
   },
 }
 
@@ -108,7 +108,9 @@ export const pdfSlice = createSlice({
       }
     },
     setClickedElement: (state, action) => {
-      state.curSelectedBb = action.payload
+      const { pdf_id, id } = action.payload
+
+      state[pdf_id].curSelectedBox = id
     },
     setSourceFile: (state, action) => {
       state.source = action.payload

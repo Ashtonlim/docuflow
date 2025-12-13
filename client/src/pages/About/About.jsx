@@ -1,4 +1,4 @@
-import LayoutOne from '../../components/LayoutOne'
+import LayoutOne from '@/components/LayoutOne'
 
 function About() {
   return (

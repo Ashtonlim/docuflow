@@ -20,7 +20,7 @@ const SelectionBox = ({
 
   const toggleClick = (e) => {
     setColor(!color)
-    dispatch(setClickedElement(coords.id))
+    dispatch(setClickedElement({ pdf_id, id: coords.id }))
   }
 
   return (
@@ -29,7 +29,7 @@ const SelectionBox = ({
       style={{
         position: 'absolute',
         border: `2px dashed #3b82f6`,
-        backgroundColor: pdf.curSelectedBb === coords.id ? bg1 : bg2,
+        backgroundColor: pdf[pdf_id].curSelectedBox === coords.id ? bg1 : bg2,
         cursor: 'default',
         left: `${coords.left * 100}%`,
         top: `${(1 - coords.top) * 100}%`,

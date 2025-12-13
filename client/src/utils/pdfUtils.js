@@ -38,3 +38,20 @@ export const normalisePoints = (area, width, height) => {
     top: top / height,
   }
 }
+
+export const createBoundingBoxObject = ({
+  area,
+  page,
+  page_number,
+  words = null,
+}) => {
+  const { width, height } = page
+  const coord = normalisePoints(area, width, height)
+
+  coord.page_number = page_number
+  coord.label = `${page_number}_`
+
+  coord.selectedWords = words || getWordsInAreaFromPage(coord, page)
+  coord.id = `${coord.left},${coord.bottom},${coord.right},${coord.top}`
+  return coord
+}

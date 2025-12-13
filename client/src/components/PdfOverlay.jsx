@@ -3,7 +3,8 @@ import { useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import SelectionBox from '@/components/SelectionBox'
 
-import { getWordsInAreaFromPage, normalisePoints } from '@/utils/pdfUtils'
+import { normalisePoints } from '@/utils/pdfUtils'
+import { createBoundingBoxObject } from '@/utils/pdfUtils'
 
 const PdfOverlay = ({ pdf_id, page_number, editable }) => {
   const dispatch = useDispatch()
@@ -76,26 +77,14 @@ const PdfOverlay = ({ pdf_id, page_number, editable }) => {
     }
 
     setIsSelecting(false)
-    // const ele = e.currentTarget.getBoundingClientRect()
-    // console.info(
-    //   'Compare page vs e.currentTarget height',
-    //   pdf[pdf_id].height,
-    //   ele.height,
-    // )
 
-    const coord = normalisePoints(area, pdf[pdf_id].pages[page_number])
-    coord.page_number = page_number
-    coord.label = `${page_number}_`
-
-    coord.selectedWords = getWordsInAreaFromPage(
-      coord,
-      pdf[pdf_id].pages[page_number],
-    )
-    coord.id = `${coord.left},${coord.bottom},${coord.right},${coord.top}`
+    const coord = createBoundingBoxObject({
+      area,
+      page_number,
+      pageData: pdf[pdf_id].pages,
+    })
 
     setArea(() => [0, 0, 0, 0])
-
-    // dispatch(addBoundingBox(coord))
     dispatch(addBoundingBox({ pdf_id, coord }))
   }
 

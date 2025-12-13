@@ -26,7 +26,7 @@ const Button = ({ to = undefined, type = 'default ', children, ...props }) => {
 
 export default Button
 
-const DefaultButton = ({ onclick, className = '', children }) => {
+export const DefaultButton = ({ onclick, className = '', children }) => {
   const handleOnClick = (e) => {
     onclick?.(e)
   }
@@ -36,7 +36,7 @@ const DefaultButton = ({ onclick, className = '', children }) => {
     </button>
   )
 }
-const PrimaryButton = ({ onclick, className = '', children }) => {
+export const PrimaryButton = ({ onclick, className = '', children }) => {
   const handleOnClick = (e) => {
     onclick?.(e)
   }
@@ -46,7 +46,7 @@ const PrimaryButton = ({ onclick, className = '', children }) => {
     </button>
   )
 }
-const SecondaryButton = ({ onclick, className = '', children }) => {
+export const SecondaryButton = ({ onclick, className = '', children }) => {
   const handleOnClick = (e) => {
     onclick?.(e)
   }
@@ -56,7 +56,7 @@ const SecondaryButton = ({ onclick, className = '', children }) => {
     </button>
   )
 }
-const NeutralButton = ({ onclick, className = '', children }) => {
+export const NeutralButton = ({ onclick, className = '', children }) => {
   const handleOnClick = (e) => {
     onclick?.(e)
   }
@@ -67,7 +67,7 @@ const NeutralButton = ({ onclick, className = '', children }) => {
   )
 }
 
-const DangerButton = ({ onclick, className = '', children }) => {
+export const DangerButton = ({ onclick, className = '', children }) => {
   const handleOnClick = (e) => {
     onclick?.(e)
   }

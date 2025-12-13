@@ -7,8 +7,8 @@ import FileUploader from '@/components/FileUploader'
 import { Document } from 'react-pdf'
 import PdfOverlay from '@/components/PdfOverlay'
 import PdfPage from '@/components/PdfPage'
-import { options } from '../../utils/constants'
-import SelectedWordsList from '../../components/SelectedWordsList'
+import { options } from '@/utils/constants'
+import SelectedWordsList from '@/components/SelectedWordsList'
 
 export default function Targets() {
   const [file, setFile] = useState(null)

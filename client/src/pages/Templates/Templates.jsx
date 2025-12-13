@@ -3,7 +3,7 @@ import {
   useGetTemplatesQuery,
   useGetDocsQuery,
 } from '@/features/template/templateSlice'
-import Button from '../../components/Button'
+import Button from '@/components/Button'
 const Templates = () => {
   // const pdf = useSelector((state) => state.pdf)
 
